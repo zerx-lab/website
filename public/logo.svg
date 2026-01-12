@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6"/>
+      <stop offset="100%" style="stop-color:#A855F7"/>
+    </linearGradient>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6"/>
+      <stop offset="50%" style="stop-color:#6366F1"/>
+      <stop offset="100%" style="stop-color:#A855F7"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background rounded square -->
+  <rect x="32" y="32" width="448" height="448" rx="96" fill="url(#bg-gradient)"/>
+  
+  <!-- Code brackets symbol - stylized "Z" made from code brackets -->
+  <g stroke="white" stroke-width="36" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- Left bracket < -->
+    <path d="M180 180 L120 256 L180 332"/>
+    <!-- Right bracket > -->
+    <path d="M332 180 L392 256 L332 332"/>
+    <!-- Slash in the middle (representing the x in zerx) -->
+    <path d="M290 160 L222 352"/>
+  </g>
+</svg>
