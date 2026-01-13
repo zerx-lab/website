@@ -21,12 +21,8 @@ export function baseOptions(): BaseLayoutProps {
         active: 'nested-url',
       },
       {
-        text: '技能',
-        url: '#skills',
-      },
-      {
-        text: '项目',
-        url: '#projects',
+        text: '关于',
+        url: '/about',
       },
     ],
     githubUrl: 'https://github.com/zerx-lab',

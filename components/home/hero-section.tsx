@@ -56,8 +56,8 @@ export function HeroSection() {
                 <span className="text-cyan-600 dark:text-cyan-500 font-mono text-xs block mb-3 tracking-widest">
                   {'>'} INITIATING_PROTOCOL...
                 </span>
-                探索 <span className="text-cyan-600 dark:text-cyan-400 font-medium hover:text-cyan-500 transition-colors cursor-default">Web3.0</span> 边界，
-                构建 <span className="text-blue-600 dark:text-blue-400 font-medium hover:text-blue-500 transition-colors cursor-default">高可用</span> 架构，
+                构建 <span className="text-blue-600 dark:text-blue-400 font-medium hover:text-blue-500 transition-colors cursor-default">高性能</span> 应用,
+                探索 <span className="text-cyan-600 dark:text-cyan-400 font-medium hover:text-cyan-500 transition-colors cursor-default">现代</span> 技术架构,
                 分享 <span className="text-teal-600 dark:text-teal-400 font-medium hover:text-teal-500 transition-colors cursor-default">核心</span> 技术洞见。
                 致力于打造极致的用户体验与代码质量。
               </p>
