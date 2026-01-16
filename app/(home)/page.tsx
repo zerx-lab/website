@@ -1,16 +1,16 @@
 import { HeroSection } from '@/components/home/hero-section';
 import { SkillsSection } from '@/components/home/skills-section';
 import { ProjectsSection } from '@/components/home/projects-section';
-import { getGitHubStars } from '@/lib/github';
+import { getGitHubData } from '@/lib/github';
 
 export default async function HomePage() {
-  const repoStars = await getGitHubStars();
+  const githubData = await getGitHubData();
 
   return (
     <main>
       <HeroSection />
       <SkillsSection />
-      <ProjectsSection repoStars={repoStars} />
+      <ProjectsSection repositories={githubData.repositories} maxDisplay={6} />
     </main>
   );
 }
