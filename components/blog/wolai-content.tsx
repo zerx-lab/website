@@ -22,7 +22,7 @@ export function WolaiContent({ html }: WolaiContentProps) {
       if (!header) return;
 
       const button = document.createElement('button');
-      button.className = 'copy-button ml-auto p-1 rounded hover:bg-fd-secondary transition-colors';
+      button.className = 'copy-button ml-auto p-1.5 rounded transition-colors';
       button.innerHTML = `
         <svg class="copy-icon w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />

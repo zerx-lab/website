@@ -90,11 +90,11 @@ function processMarkdown(markdown: string): { html: string; toc: TOCItemType[] }
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
     codeBlocks.push(
-      `<figure class="code-block not-prose my-6 overflow-hidden rounded-lg border bg-fd-secondary/50 text-sm">
-        <div class="code-header flex items-center gap-2 border-b bg-fd-muted px-4 py-1.5">
+      `<figure class="code-block not-prose my-6">
+        <div class="code-header">
           <span class="text-fd-muted-foreground">${lang || 'code'}</span>
         </div>
-        <pre class="overflow-x-auto p-4"><code class="grid">${escapedCode}</code></pre>
+        <pre><code>${escapedCode}</code></pre>
       </figure>`
     );
     return `__CODE_BLOCK_${index}__`;
