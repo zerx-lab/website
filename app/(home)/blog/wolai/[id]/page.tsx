@@ -118,11 +118,23 @@ export default async function WolaiArticlePage({ params }: PageProps) {
   );
 }
 
-// Simple markdown to HTML converter
+// Markdown to HTML converter with proper code block handling
 function markdownToHtml(markdown: string): string {
-  return markdown
-    // Code blocks
-    .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>')
+  // 先提取代码块，用占位符替换
+  const codeBlocks: string[] = [];
+  let processed = markdown.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => {
+    const index = codeBlocks.length;
+    // HTML 转义代码内容
+    const escapedCode = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    codeBlocks.push(`<pre><code class="language-${lang || 'text'}">${escapedCode}</code></pre>`);
+    return `__CODE_BLOCK_${index}__`;
+  });
+
+  // 处理其他 Markdown 元素
+  processed = processed
     // Inline code
     .replace(/`([^`]+)`/g, '<code>$1</code>')
     // Headers
@@ -134,26 +146,82 @@ function markdownToHtml(markdown: string): string {
     // Italic
     .replace(/\*([^*]+)\*/g, '<em>$1</em>')
     // Links
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+    // Auto-link URLs
+    .replace(/<(https?:\/\/[^>]+)>/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')
     // Images
-    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />')
-    // Lists
-    .replace(/^- (.+)$/gm, '<li>$1</li>')
-    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" loading="lazy" />')
     // Blockquotes
     .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
+    // Lists
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
     // Horizontal rule
-    .replace(/^---$/gm, '<hr />')
-    // Paragraphs
-    .replace(/\n\n/g, '</p><p>')
-    .replace(/^(.+)$/gm, (match, p1) => {
-      if (p1.startsWith('<')) return p1;
-      return `<p>${p1}</p>`;
-    })
-    // Clean up
-    .replace(/<p><\/p>/g, '')
-    .replace(/<p>(<h|<ul|<pre|<blockquote|<hr)/g, '$1')
-    .replace(/(<\/h\d>|<\/ul>|<\/pre>|<\/blockquote>|<hr \/>)<\/p>/g, '$1');
+    .replace(/^---$/gm, '<hr />');
+
+  // 处理段落 - 分割成行，智能处理
+  const lines = processed.split('\n');
+  const htmlLines: string[] = [];
+  let inList = false;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      if (inList) {
+        htmlLines.push('</ul>');
+        inList = false;
+      }
+      continue;
+    }
+
+    // 跳过已经是 HTML 标签的行
+    if (trimmed.startsWith('<') && !trimmed.startsWith('<li>')) {
+      if (inList) {
+        htmlLines.push('</ul>');
+        inList = false;
+      }
+      htmlLines.push(trimmed);
+      continue;
+    }
+
+    // 处理列表项
+    if (trimmed.startsWith('<li>')) {
+      if (!inList) {
+        htmlLines.push('<ul>');
+        inList = true;
+      }
+      htmlLines.push(trimmed);
+      continue;
+    }
+
+    // 处理占位符
+    if (trimmed.startsWith('__CODE_BLOCK_')) {
+      if (inList) {
+        htmlLines.push('</ul>');
+        inList = false;
+      }
+      htmlLines.push(trimmed);
+      continue;
+    }
+
+    // 普通文本变成段落
+    if (inList) {
+      htmlLines.push('</ul>');
+      inList = false;
+    }
+    htmlLines.push(`<p>${trimmed}</p>`);
+  }
+
+  if (inList) {
+    htmlLines.push('</ul>');
+  }
+
+  // 还原代码块
+  let result = htmlLines.join('\n');
+  codeBlocks.forEach((block, index) => {
+    result = result.replace(`__CODE_BLOCK_${index}__`, block);
+  });
+
+  return result;
 }
 
 export async function generateMetadata({ params }: PageProps) {
