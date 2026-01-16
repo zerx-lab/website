@@ -417,6 +417,36 @@
   background: hsl(var(--tech-cyan) / 0.3);
 }
 
+/* Wolai article code blocks */
+.code-block {
+  background: #1a1a2e !important;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+  max-width: 100%;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  border: 1px solid hsl(var(--border-color));
+}
+
+.code-block code {
+  color: #e2e8f0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  white-space: pre;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+:root .code-block {
+  border-color: #e2e8f0;
+}
+
+.dark .code-block {
+  border-color: hsl(var(--tech-cyan) / 0.2);
+}
+
 .section-bg {
   background: hsl(var(--bg-primary));
 }

@@ -88,7 +88,7 @@ export default async function WolaiArticlePage({ params }: PageProps) {
       {/* Article content */}
       <section className="py-16 relative section-bg">
         <div className="container mx-auto px-4">
-          <article className="max-w-3xl mx-auto prose prose-lg dark:prose-invert prose-headings:font-mono prose-headings:tracking-tight prose-a:text-cyan-600 dark:prose-a:text-cyan-400 prose-code:text-cyan-600 dark:prose-code:text-cyan-400 prose-pre:bg-gray-900 prose-pre:border prose-pre:border-gray-800">
+          <article className="max-w-3xl mx-auto prose prose-lg dark:prose-invert prose-headings:font-mono prose-headings:tracking-tight prose-a:text-cyan-600 dark:prose-a:text-cyan-400 prose-code:text-cyan-600 dark:prose-code:text-cyan-400 prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:before:content-none prose-code:after:content-none">
             {content ? (
               <div dangerouslySetInnerHTML={{ __html: markdownToHtml(content) }} />
             ) : (
@@ -129,7 +129,7 @@ function markdownToHtml(markdown: string): string {
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
-    codeBlocks.push(`<pre><code class="language-${lang || 'text'}">${escapedCode}</code></pre>`);
+    codeBlocks.push(`<pre class="code-block"><code class="language-${lang || 'text'}">${escapedCode}</code></pre>`);
     return `__CODE_BLOCK_${index}__`;
   });
 
