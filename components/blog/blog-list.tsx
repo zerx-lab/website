@@ -43,6 +43,7 @@ export function BlogList({ initialPosts, totalCount }: BlogListProps) {
         <Link
           key={post.url}
           href={post.url}
+          prefetch={post.source !== 'wolai'}
           className="group block"
         >
           <article className="relative p-5 sm:p-6 rounded-lg border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm hover:border-cyan-500/50 dark:hover:border-cyan-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/5">
