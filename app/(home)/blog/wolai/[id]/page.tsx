@@ -1,7 +1,7 @@
 import { getWolaiArticles, getWolaiArticleContent } from '@/lib/wolai';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/layouts/docs/page';
+import { InlineTOC } from 'fumadocs-ui/components/inline-toc';
 import type { TOCItemType } from 'fumadocs-core/toc';
 
 interface PageProps {
@@ -22,53 +22,88 @@ export default async function WolaiArticlePage({ params }: PageProps) {
   const { html, toc } = processMarkdown(content);
 
   return (
-    <DocsPage toc={toc}>
-      <DocsTitle>{article.title}</DocsTitle>
-      {article.description && (
-        <DocsDescription>{article.description}</DocsDescription>
-      )}
-      <div className="flex flex-wrap items-center gap-4 border-b pb-6 text-sm text-fd-muted-foreground">
-        <span>Zerx</span>
-        {article.tags && article.tags.length > 0 && (
-          <div className="flex gap-2">
-            {article.tags.map((tag) => (
-              <span
-                key={tag}
-                className="rounded bg-fd-secondary px-2 py-0.5 text-xs"
-              >
-                {tag}
-              </span>
-            ))}
+    <main className="container py-8 lg:py-12">
+      <div className="flex gap-12">
+        {/* 主内容区 */}
+        <article className="min-w-0 flex-1 max-w-3xl">
+          {/* 返回链接 */}
+          <Link
+            href="/blog"
+            className="mb-6 inline-flex items-center gap-2 text-sm text-fd-muted-foreground hover:text-fd-foreground transition-colors"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            返回博客
+          </Link>
+
+          {/* 标题 */}
+          <h1 className="mb-4 text-3xl font-bold tracking-tight md:text-4xl">
+            {article.title}
+          </h1>
+
+          {/* 描述 */}
+          {article.description && (
+            <p className="mb-6 text-lg text-fd-muted-foreground">
+              {article.description}
+            </p>
+          )}
+
+          {/* 元信息 */}
+          <div className="mb-8 flex flex-wrap items-center gap-4 border-b border-fd-border pb-6 text-sm text-fd-muted-foreground">
+            <span>Zerx</span>
+            {article.tags && article.tags.length > 0 && (
+              <div className="flex gap-2">
+                {article.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded bg-fd-secondary px-2 py-0.5 text-xs"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+            <a
+              href={`https://www.wolai.com/${id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-auto hover:text-fd-primary"
+            >
+              在 wolai 中查看 →
+            </a>
           </div>
+
+          {/* 文章内容 */}
+          <div
+            className="prose prose-fd min-w-0 max-w-none"
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
+
+          {/* 底部返回 */}
+          <div className="mt-12 border-t border-fd-border pt-6">
+            <Link
+              href="/blog"
+              className="inline-flex items-center gap-2 text-sm text-fd-muted-foreground hover:text-fd-foreground transition-colors"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              返回博客列表
+            </Link>
+          </div>
+        </article>
+
+        {/* 右侧目录 */}
+        {toc.length > 0 && (
+          <aside className="hidden xl:block w-56 shrink-0">
+            <div className="sticky top-20">
+              <InlineTOC items={toc} />
+            </div>
+          </aside>
         )}
-        <a
-          href={`https://www.wolai.com/${id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ml-auto hover:text-fd-primary"
-        >
-          在 wolai 中查看 →
-        </a>
       </div>
-      <DocsBody>
-        <div
-          className="prose"
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
-      </DocsBody>
-      {/* 底部导航 */}
-      <div className="mt-8 border-t pt-6">
-        <Link
-          href="/blog"
-          className="inline-flex items-center gap-2 text-sm text-fd-muted-foreground hover:text-fd-foreground transition-colors"
-        >
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          返回博客列表
-        </Link>
-      </div>
-    </DocsPage>
+    </main>
   );
 }
 
