@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/layouts/docs/page';
 import type { TOCItemType } from 'fumadocs-core/toc';
 import { WolaiContent } from '@/components/blog/wolai-content';
+import { codeToHtml } from 'shiki';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -20,7 +21,7 @@ export default async function WolaiArticlePage({ params }: PageProps) {
   }
 
   const content = await getWolaiArticleContent(id);
-  const { html, toc } = processMarkdown(content);
+  const { html, toc } = await processMarkdown(content);
 
   return (
     <DocsPage toc={toc}>
@@ -78,25 +79,14 @@ function slugify(text: string): string {
 }
 
 // 处理 Markdown，返回 HTML 和 TOC
-function processMarkdown(markdown: string): { html: string; toc: TOCItemType[] } {
+async function processMarkdown(markdown: string): Promise<{ html: string; toc: TOCItemType[] }> {
   const toc: TOCItemType[] = [];
-  const codeBlocks: string[] = [];
+  const codeBlocks: { lang: string; code: string }[] = [];
 
-  // 提取代码块
+  // 提取代码块信息
   let processed = markdown.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => {
     const index = codeBlocks.length;
-    const escapedCode = code
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-    codeBlocks.push(
-      `<figure class="code-block not-prose my-6">
-        <div class="code-header">
-          <span class="text-fd-muted-foreground">${lang || 'code'}</span>
-        </div>
-        <pre><code>${escapedCode}</code></pre>
-      </figure>`
-    );
+    codeBlocks.push({ lang: lang || 'text', code: code.trimEnd() });
     return `__CODE_BLOCK_${index}__`;
   });
 
@@ -159,9 +149,43 @@ function processMarkdown(markdown: string): { html: string; toc: TOCItemType[] }
   }
   if (inList) htmlLines.push('</ul>');
 
+  // 使用 shiki 高亮代码块
+  const highlightedBlocks = await Promise.all(
+    codeBlocks.map(async ({ lang, code }) => {
+      try {
+        const highlighted = await codeToHtml(code, {
+          lang,
+          themes: {
+            light: 'github-light',
+            dark: 'github-dark',
+          },
+        });
+        // 包装在 figure 中并添加语言标签
+        return `<figure class="code-block not-prose my-6">
+          <div class="code-header">
+            <span class="text-fd-muted-foreground">${lang}</span>
+          </div>
+          <div class="shiki-wrapper">${highlighted}</div>
+        </figure>`;
+      } catch {
+        // 如果语言不支持，回退到纯文本
+        const escapedCode = code
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+        return `<figure class="code-block not-prose my-6">
+          <div class="code-header">
+            <span class="text-fd-muted-foreground">${lang}</span>
+          </div>
+          <pre><code>${escapedCode}</code></pre>
+        </figure>`;
+      }
+    })
+  );
+
   // 还原代码块
   let html = htmlLines.join('\n');
-  codeBlocks.forEach((block, index) => {
+  highlightedBlocks.forEach((block, index) => {
     html = html.replace(`__CODE_BLOCK_${index}__`, block);
   });
 

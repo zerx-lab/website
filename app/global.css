@@ -449,6 +449,26 @@
   overflow-wrap: normal;
 }
 
+/* Shiki dual theme support */
+.code-block .shiki,
+.code-block .shiki span {
+  color: var(--shiki-light) !important;
+  background-color: transparent !important;
+}
+
+.dark .code-block .shiki,
+.dark .code-block .shiki span {
+  color: var(--shiki-dark) !important;
+  background-color: transparent !important;
+}
+
+.code-block .shiki-wrapper pre {
+  margin: 0;
+  padding: 1rem;
+  overflow-x: auto;
+  background: transparent !important;
+}
+
 /* Light theme */
 :root .code-block {
   background: #f8fafc;
@@ -458,10 +478,6 @@
 :root .code-block .code-header {
   background: #f1f5f9;
   border-bottom-color: #e2e8f0;
-}
-
-:root .code-block code {
-  color: #334155 !important;
 }
 
 :root .code-block .copy-button {
@@ -482,10 +498,6 @@
 .dark .code-block .code-header {
   background: #0f172a;
   border-bottom-color: hsl(var(--tech-cyan) / 0.15);
-}
-
-.dark .code-block code {
-  color: #e2e8f0 !important;
 }
 
 .dark .code-block .copy-button {
