@@ -25,7 +25,7 @@ export default async function WolaiArticlePage({ params }: PageProps) {
   const { html, toc } = await processMarkdown(content);
 
   return (
-    <main className="container px-4 sm:px-6 py-8 lg:py-12">
+    <main className="container mx-auto px-4 sm:px-6 py-8 lg:py-12">
       <div className="mx-auto max-w-4xl lg:max-w-6xl">
         <div className="lg:grid lg:grid-cols-[1fr_220px] lg:gap-12">
           {/* 主内容 */}

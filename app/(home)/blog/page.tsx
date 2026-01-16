@@ -17,7 +17,7 @@ export default async function BlogPage() {
       <div className="absolute top-0 right-0 w-[50vw] max-w-[600px] h-[50vw] max-h-[600px] rounded-full bg-cyan-500/5 dark:bg-cyan-500/10 blur-[120px] pointer-events-none -translate-y-1/4 translate-x-1/4" />
       <div className="absolute bottom-0 left-0 w-[40vw] max-w-[400px] h-[40vw] max-h-[400px] rounded-full bg-blue-500/5 dark:bg-blue-600/10 blur-[100px] pointer-events-none translate-y-1/4 -translate-x-1/4" />
 
-      <div className="container relative z-10 px-4 sm:px-6 py-12 md:py-16 lg:py-20">
+      <div className="container mx-auto relative z-10 px-4 sm:px-6 py-12 md:py-16 lg:py-20">
         <div className="mx-auto max-w-4xl">
           {/* 页面头部 */}
           <header className="mb-12 md:mb-16">
