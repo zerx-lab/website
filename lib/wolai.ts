@@ -8,8 +8,7 @@
  * - GET /blocks/{id}/children - Query block children
  * - GET /blocks/{id} - Get block details
  * - POST /blocks - Create blocks
- * - GET /databases/{id} - Get database structure
- * - POST /databases/{id}/rows - Query database rows
+ * - GET /databases/{id} - Get database data (rows)
  */
 
 const WOLAI_API_BASE = 'https://openapi.wolai.com/v1';
@@ -27,24 +26,41 @@ interface WolaiTokenResponse {
   };
 }
 
+interface WolaiBlockContent {
+  title?: string;
+  text?: string;
+  type?: string;
+}
+
 interface WolaiBlock {
   id: string;
   type: string;
-  content?: unknown;
-  children?: WolaiBlock[];
+  content?: WolaiBlockContent[];
+  language?: string;
+  parent_id?: string;
+  page_id?: string;
+  children?: {
+    ids: string[];
+    api_url: string | null;
+  };
 }
 
 interface WolaiDatabaseRow {
-  id: string;
-  data: Record<string, unknown>;
+  page_id: string;
+  data: Record<string, { type: string; value: string }>;
 }
 
 interface WolaiDatabaseResponse {
   data: {
+    column_order: string[];
     rows: WolaiDatabaseRow[];
-    page_id?: string;
-    has_more?: boolean;
   };
+}
+
+interface WolaiBlockChildrenResponse {
+  data: WolaiBlock[];
+  next_cursor: string | null;
+  has_more: boolean;
 }
 
 interface WolaiError {
@@ -103,16 +119,13 @@ async function getToken(): Promise<string> {
 /**
  * Make authenticated request to wolai API
  */
-async function wolaiRequest<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> {
+async function wolaiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = await getToken();
 
   const response = await fetch(`${WOLAI_API_BASE}${endpoint}`, {
     ...options,
     headers: {
-      'Authorization': token,
+      Authorization: token,
       'Content-Type': 'application/json',
       ...options.headers,
     },
@@ -129,29 +142,17 @@ async function wolaiRequest<T>(
 }
 
 /**
- * Query database rows
+ * Get database data (rows)
  */
-export async function getDatabaseRows(
-  databaseId: string,
-  options?: {
-    page_size?: number;
-    start_cursor?: string;
-  }
-): Promise<WolaiDatabaseResponse> {
-  return wolaiRequest<WolaiDatabaseResponse>(
-    `/databases/${databaseId}/rows`,
-    {
-      method: 'POST',
-      body: JSON.stringify(options || {}),
-    }
-  );
+export async function getDatabase(databaseId: string): Promise<WolaiDatabaseResponse> {
+  return wolaiRequest<WolaiDatabaseResponse>(`/databases/${databaseId}`);
 }
 
 /**
  * Get block children
  */
-export async function getBlockChildren(blockId: string): Promise<{ data: WolaiBlock[] }> {
-  return wolaiRequest(`/blocks/${blockId}/children`);
+export async function getBlockChildren(blockId: string): Promise<WolaiBlockChildrenResponse> {
+  return wolaiRequest<WolaiBlockChildrenResponse>(`/blocks/${blockId}/children`);
 }
 
 /**
@@ -175,25 +176,36 @@ export async function getWolaiArticles(databaseId?: string): Promise<WolaiArticl
   }
 
   try {
-    const response = await getDatabaseRows(dbId);
+    const response = await getDatabase(dbId);
 
     // Transform database rows to articles
-    // Note: The exact field mapping depends on your wolai database structure
     const articles: WolaiArticle[] = response.data.rows.map((row) => {
       const data = row.data;
 
+      // Extract title from the data - wolai uses { type, value } format
+      const titleField = data['标题'] || data['title'] || data['Title'];
+      const title = titleField?.value || '';
+
+      // Extract other fields if they exist
+      const descField = data['描述'] || data['description'] || data['Description'];
+      const description = descField?.value;
+
+      const tagsField = data['标签'] || data['tags'] || data['Tags'];
+      const tags = tagsField?.value ? tagsField.value.split(',').map((t: string) => t.trim()) : undefined;
+
+      const statusField = data['状态'] || data['status'] || data['Status'];
+      const status = statusField?.value;
+
       return {
-        id: row.id,
-        title: extractTextValue(data['标题'] || data['title'] || data['Title'] || ''),
-        description: extractTextValue(data['描述'] || data['description'] || data['Description'] || ''),
-        createdAt: extractDateValue(data['创建时间'] || data['created_at'] || data['Created']),
-        updatedAt: extractDateValue(data['更新时间'] || data['updated_at'] || data['Updated']),
-        tags: extractMultiSelectValue(data['标签'] || data['tags'] || data['Tags']),
-        status: extractSelectValue(data['状态'] || data['status'] || data['Status']),
+        id: row.page_id,
+        title,
+        description,
+        tags,
+        status,
       };
     });
 
-    // Filter out draft articles (only return published ones)
+    // Filter out articles without title and draft articles
     return articles.filter(
       (article) => article.title && (!article.status || article.status === '已发布' || article.status === 'Published')
     );
@@ -208,55 +220,12 @@ export async function getWolaiArticles(databaseId?: string): Promise<WolaiArticl
  */
 export async function getWolaiArticleContent(blockId: string): Promise<string> {
   try {
-    const { data: children } = await getBlockChildren(blockId);
-    return blocksToMarkdown(children);
+    const response = await getBlockChildren(blockId);
+    return blocksToMarkdown(response.data);
   } catch (error) {
     console.error('[Wolai] Error fetching article content:', error);
     return '';
   }
-}
-
-// Helper functions to extract values from wolai data types
-
-function extractTextValue(value: unknown): string {
-  if (!value) return '';
-  if (typeof value === 'string') return value;
-  if (Array.isArray(value)) {
-    return value.map((v) => (typeof v === 'string' ? v : v?.text || '')).join('');
-  }
-  if (typeof value === 'object' && value !== null) {
-    const v = value as Record<string, unknown>;
-    return (v.text || v.value || v.title || '') as string;
-  }
-  return String(value);
-}
-
-function extractDateValue(value: unknown): string | undefined {
-  if (!value) return undefined;
-  if (typeof value === 'string') return value;
-  if (typeof value === 'object' && value !== null) {
-    const v = value as Record<string, unknown>;
-    return (v.start || v.date || v.value) as string | undefined;
-  }
-  return undefined;
-}
-
-function extractMultiSelectValue(value: unknown): string[] {
-  if (!value) return [];
-  if (Array.isArray(value)) {
-    return value.map((v) => (typeof v === 'string' ? v : v?.name || v?.value || '')).filter(Boolean);
-  }
-  return [];
-}
-
-function extractSelectValue(value: unknown): string | undefined {
-  if (!value) return undefined;
-  if (typeof value === 'string') return value;
-  if (typeof value === 'object' && value !== null) {
-    const v = value as Record<string, unknown>;
-    return (v.name || v.value) as string | undefined;
-  }
-  return undefined;
 }
 
 /**
@@ -267,12 +236,13 @@ function blocksToMarkdown(blocks: WolaiBlock[]): string {
 
   return blocks
     .map((block) => {
-      const content = block.content as Record<string, unknown> | undefined;
-      const text = extractTextValue(content?.rich_text || content?.text || content?.title || '');
+      // wolai content is an array of { title/text, type } objects
+      const contentArray = block.content || [];
+      const text = contentArray.map((c) => c.title || c.text || '').join('');
 
       switch (block.type) {
-        case 'heading_1':
         case 'heading':
+        case 'heading_1':
           return `# ${text}\n`;
         case 'heading_2':
           return `## ${text}\n`;
@@ -280,7 +250,7 @@ function blocksToMarkdown(blocks: WolaiBlock[]): string {
           return `### ${text}\n`;
         case 'paragraph':
         case 'text':
-          return `${text}\n`;
+          return text ? `${text}\n` : '';
         case 'bulleted_list_item':
         case 'bullet_list':
           return `- ${text}\n`;
@@ -288,7 +258,8 @@ function blocksToMarkdown(blocks: WolaiBlock[]): string {
         case 'numbered_list':
           return `1. ${text}\n`;
         case 'code':
-          const language = (content?.language as string) || '';
+          // wolai puts language at block level, not in content
+          const language = block.language?.toLowerCase() || '';
           return `\`\`\`${language}\n${text}\n\`\`\`\n`;
         case 'quote':
         case 'callout':
@@ -296,13 +267,15 @@ function blocksToMarkdown(blocks: WolaiBlock[]): string {
         case 'divider':
           return `---\n`;
         case 'image':
-          const fileObj = content?.file as Record<string, unknown> | undefined;
-          const url = (content?.url || fileObj?.url) as string | undefined;
-          return url ? `![${text || 'image'}](${url})\n` : '';
+          // Handle image blocks
+          const imgContent = contentArray[0];
+          const imgUrl = (imgContent as Record<string, unknown>)?.url as string | undefined;
+          return imgUrl ? `![${text || 'image'}](${imgUrl})\n` : '';
         default:
           return text ? `${text}\n` : '';
       }
     })
+    .filter(Boolean)
     .join('\n');
 }
 
