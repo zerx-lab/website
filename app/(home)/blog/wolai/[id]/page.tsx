@@ -1,6 +1,5 @@
 import { getWolaiArticles, getWolaiArticleContent } from '@/lib/wolai';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, User, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 
 interface PageProps {
@@ -10,7 +9,6 @@ interface PageProps {
 export default async function WolaiArticlePage({ params }: PageProps) {
   const { id } = await params;
 
-  // Get all articles to find metadata
   const articles = await getWolaiArticles();
   const article = articles.find((a) => a.id === id);
 
@@ -18,147 +16,122 @@ export default async function WolaiArticlePage({ params }: PageProps) {
     notFound();
   }
 
-  // Get article content
   const content = await getWolaiArticleContent(id);
+  const htmlContent = markdownToHtml(content);
 
   return (
-    <main className="relative min-h-screen">
-      {/* Hero Section */}
-      <section className="relative py-16 overflow-hidden section-bg selection:bg-cyan-500/30 selection:text-cyan-200 border-b border-gray-200 dark:border-white/10">
-        <div className="absolute inset-0 bg-grid-cyber opacity-[0.1] dark:opacity-[0.05]" />
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-          <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-cyan-500/5 dark:bg-cyan-500/10 blur-[100px]" />
-        </div>
+    <main className="container py-12 md:py-16 lg:py-20">
+      <div className="mx-auto max-w-3xl">
+        {/* 返回链接 */}
+        <Link
+          href="/blog"
+          className="mb-8 inline-flex items-center gap-2 text-sm text-fd-muted-foreground hover:text-fd-foreground transition-colors"
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          返回博客
+        </Link>
 
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl mx-auto">
-            {/* Back link */}
-            <Link
-              href="/blog"
-              className="group inline-flex items-center gap-2 text-sm font-mono text-gray-500 dark:text-gray-500 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors mb-8"
-            >
-              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-              <span>BACK_TO_BLOG</span>
-            </Link>
+        {/* 标题 */}
+        <h1 className="mb-4 text-3xl font-bold tracking-tight md:text-4xl">
+          {article.title}
+        </h1>
 
-            {/* Title */}
-            <h1 className="text-4xl sm:text-5xl font-bold font-mono text-gray-900 dark:text-white mb-6 tracking-tight leading-tight">
-              {article.title}
-            </h1>
+        {/* 描述 */}
+        {article.description && (
+          <p className="mb-6 text-lg text-fd-muted-foreground">
+            {article.description}
+          </p>
+        )}
 
-            {/* Description */}
-            {article.description && (
-              <p className="text-xl text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
-                {article.description}
-              </p>
-            )}
-
-            {/* Meta info */}
-            <div className="flex flex-wrap items-center gap-6 text-sm font-mono text-gray-500 dark:text-gray-500">
-              <span className="flex items-center gap-2">
-                <User className="w-4 h-4" />
-                Zerx
-              </span>
-              {article.tags && article.tags.length > 0 && (
-                <div className="flex items-center gap-2">
-                  {article.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-2 py-0.5 text-xs bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 rounded"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-              <a
-                href={`https://www.wolai.com/${id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors"
-              >
-                <ExternalLink className="w-3 h-3" />
-                <span>VIEW_IN_WOLAI</span>
-              </a>
+        {/* 元信息 */}
+        <div className="mb-8 flex flex-wrap items-center gap-4 border-b border-fd-border pb-6 text-sm text-fd-muted-foreground">
+          <span>Zerx</span>
+          {article.tags && article.tags.length > 0 && (
+            <div className="flex gap-2">
+              {article.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded bg-fd-secondary px-2 py-0.5 text-xs"
+                >
+                  {tag}
+                </span>
+              ))}
             </div>
-          </div>
+          )}
+          <a
+            href={`https://www.wolai.com/${id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-auto hover:text-fd-primary"
+          >
+            在 wolai 中查看 →
+          </a>
         </div>
-      </section>
 
-      {/* Article content */}
-      <section className="py-16 relative section-bg">
-        <div className="container mx-auto px-4">
-          <article className="max-w-3xl mx-auto prose prose-lg dark:prose-invert prose-headings:font-mono prose-headings:tracking-tight prose-a:text-cyan-600 dark:prose-a:text-cyan-400 prose-code:text-cyan-600 dark:prose-code:text-cyan-400 prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:before:content-none prose-code:after:content-none">
-            {content ? (
-              <div dangerouslySetInnerHTML={{ __html: markdownToHtml(content) }} />
-            ) : (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-500 font-mono">
-                // CONTENT_LOADING_FROM_WOLAI
-              </div>
-            )}
-          </article>
-        </div>
-      </section>
+        {/* 文章内容 */}
+        <article
+          className="prose min-w-0 max-w-none"
+          dangerouslySetInnerHTML={{ __html: htmlContent }}
+        />
 
-      {/* Bottom navigation */}
-      <section className="py-12 border-t border-gray-200 dark:border-white/10 section-bg">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto">
-            <Link
-              href="/blog"
-              className="group inline-flex items-center gap-3 px-6 py-3 bg-gray-100 dark:bg-gray-800/50 hover:bg-gray-200 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300 font-mono transition-all border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 card-hover-lift"
-            >
-              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-              <span className="tracking-wider">BACK_TO_BLOG</span>
-            </Link>
-          </div>
+        {/* 底部返回 */}
+        <div className="mt-12 border-t border-fd-border pt-6">
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-2 text-sm text-fd-muted-foreground hover:text-fd-foreground transition-colors"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            返回博客列表
+          </Link>
         </div>
-      </section>
+      </div>
     </main>
   );
 }
 
-// Markdown to HTML converter with proper code block handling
+// Markdown 转 HTML，使用 fumadocs 兼容的类名
 function markdownToHtml(markdown: string): string {
-  // 先提取代码块，用占位符替换
   const codeBlocks: string[] = [];
+
+  // 提取代码块
   let processed = markdown.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => {
     const index = codeBlocks.length;
-    // HTML 转义代码内容
     const escapedCode = code
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
-    codeBlocks.push(`<pre class="code-block"><code class="language-${lang || 'text'}">${escapedCode}</code></pre>`);
+    // 使用 fumadocs 风格的代码块
+    codeBlocks.push(
+      `<figure class="not-prose my-6 overflow-hidden rounded-lg border bg-fd-secondary/50 text-sm">
+        <div class="flex items-center gap-2 border-b bg-fd-muted px-4 py-1.5">
+          <span class="text-fd-muted-foreground">${lang || 'code'}</span>
+        </div>
+        <pre class="overflow-x-auto p-4"><code class="grid">${escapedCode}</code></pre>
+      </figure>`
+    );
     return `__CODE_BLOCK_${index}__`;
   });
 
-  // 处理其他 Markdown 元素
+  // 处理其他元素
   processed = processed
-    // Inline code
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    // Headers
-    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-    // Bold
+    .replace(/`([^`]+)`/g, '<code class="rounded bg-fd-secondary px-1.5 py-0.5 text-sm">$1</code>')
+    .replace(/^### (.+)$/gm, '<h3 class="mt-8 mb-4 text-xl font-semibold">$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2 class="mt-10 mb-4 text-2xl font-bold border-b pb-2">$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1 class="mt-10 mb-4 text-3xl font-bold">$1</h1>')
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    // Italic
     .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-    // Links
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
-    // Auto-link URLs
-    .replace(/<(https?:\/\/[^>]+)>/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')
-    // Images
-    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" loading="lazy" />')
-    // Blockquotes
-    .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
-    // Lists
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" class="text-fd-primary underline underline-offset-4 hover:text-fd-primary/80">$1</a>')
+    .replace(/<(https?:\/\/[^>]+)>/g, '<a href="$1" target="_blank" rel="noopener" class="text-fd-primary underline underline-offset-4 break-all">$1</a>')
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="rounded-lg my-4" loading="lazy" />')
+    .replace(/^> (.+)$/gm, '<blockquote class="border-l-2 border-fd-primary pl-4 italic text-fd-muted-foreground">$1</blockquote>')
     .replace(/^- (.+)$/gm, '<li>$1</li>')
-    // Horizontal rule
-    .replace(/^---$/gm, '<hr />');
+    .replace(/^---$/gm, '<hr class="my-8 border-fd-border" />');
 
-  // 处理段落 - 分割成行，智能处理
+  // 处理段落
   const lines = processed.split('\n');
   const htmlLines: string[] = [];
   let inList = false;
@@ -166,54 +139,28 @@ function markdownToHtml(markdown: string): string {
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed) {
-      if (inList) {
-        htmlLines.push('</ul>');
-        inList = false;
-      }
+      if (inList) { htmlLines.push('</ul>'); inList = false; }
       continue;
     }
-
-    // 跳过已经是 HTML 标签的行
     if (trimmed.startsWith('<') && !trimmed.startsWith('<li>')) {
-      if (inList) {
-        htmlLines.push('</ul>');
-        inList = false;
-      }
+      if (inList) { htmlLines.push('</ul>'); inList = false; }
       htmlLines.push(trimmed);
       continue;
     }
-
-    // 处理列表项
     if (trimmed.startsWith('<li>')) {
-      if (!inList) {
-        htmlLines.push('<ul>');
-        inList = true;
-      }
+      if (!inList) { htmlLines.push('<ul class="my-4 list-disc pl-6 space-y-2">'); inList = true; }
       htmlLines.push(trimmed);
       continue;
     }
-
-    // 处理占位符
     if (trimmed.startsWith('__CODE_BLOCK_')) {
-      if (inList) {
-        htmlLines.push('</ul>');
-        inList = false;
-      }
+      if (inList) { htmlLines.push('</ul>'); inList = false; }
       htmlLines.push(trimmed);
       continue;
     }
-
-    // 普通文本变成段落
-    if (inList) {
-      htmlLines.push('</ul>');
-      inList = false;
-    }
-    htmlLines.push(`<p>${trimmed}</p>`);
+    if (inList) { htmlLines.push('</ul>'); inList = false; }
+    htmlLines.push(`<p class="my-4 leading-7">${trimmed}</p>`);
   }
-
-  if (inList) {
-    htmlLines.push('</ul>');
-  }
+  if (inList) htmlLines.push('</ul>');
 
   // 还原代码块
   let result = htmlLines.join('\n');
@@ -226,18 +173,15 @@ function markdownToHtml(markdown: string): string {
 
 export async function generateMetadata({ params }: PageProps) {
   const { id } = await params;
-
   const articles = await getWolaiArticles();
   const article = articles.find((a) => a.id === id);
 
   if (!article) {
-    return {
-      title: 'Post Not Found',
-    };
+    return { title: '文章未找到' };
   }
 
   return {
-    title: `${article.title} - ZERX_LAB Blog`,
+    title: `${article.title} - Blog`,
     description: article.description,
   };
 }
