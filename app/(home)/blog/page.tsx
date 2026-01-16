@@ -7,8 +7,8 @@ export const metadata = {
   description: '技术博客，分享全栈开发、开源项目和技术探索的心得。',
 };
 
-export default function BlogPage() {
-  const posts = getBlogPosts();
+export default async function BlogPage() {
+  const posts = await getBlogPosts();
 
   return (
     <main className="relative min-h-screen">
