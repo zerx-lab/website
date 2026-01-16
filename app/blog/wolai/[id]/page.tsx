@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/layouts/docs/page';
 import type { TOCItemType } from 'fumadocs-core/toc';
+import { WolaiContent } from '@/components/blog/wolai-content';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -51,7 +52,7 @@ export default async function WolaiArticlePage({ params }: PageProps) {
         </a>
       </div>
       <DocsBody>
-        <div dangerouslySetInnerHTML={{ __html: html }} />
+        <WolaiContent html={html} />
       </DocsBody>
       <div className="mt-8 border-t pt-6">
         <Link
@@ -89,8 +90,8 @@ function processMarkdown(markdown: string): { html: string; toc: TOCItemType[] }
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
     codeBlocks.push(
-      `<figure class="not-prose my-6 overflow-hidden rounded-lg border bg-fd-secondary/50 text-sm">
-        <div class="flex items-center gap-2 border-b bg-fd-muted px-4 py-1.5">
+      `<figure class="code-block not-prose my-6 overflow-hidden rounded-lg border bg-fd-secondary/50 text-sm">
+        <div class="code-header flex items-center gap-2 border-b bg-fd-muted px-4 py-1.5">
           <span class="text-fd-muted-foreground">${lang || 'code'}</span>
         </div>
         <pre class="overflow-x-auto p-4"><code class="grid">${escapedCode}</code></pre>
