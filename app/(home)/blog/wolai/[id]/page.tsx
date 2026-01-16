@@ -1,10 +1,11 @@
 import { getWolaiArticles, getWolaiArticleContent } from '@/lib/wolai';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/layouts/docs/page';
+import { InlineTOC } from 'fumadocs-ui/components/inline-toc';
 import type { TOCItemType } from 'fumadocs-core/toc';
 import { WolaiContent } from '@/components/blog/wolai-content';
 import { codeToHtml } from 'shiki';
+import { ArrowLeft } from 'lucide-react';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -24,49 +25,95 @@ export default async function WolaiArticlePage({ params }: PageProps) {
   const { html, toc } = await processMarkdown(content);
 
   return (
-    <DocsPage toc={toc}>
-      <DocsTitle>{article.title}</DocsTitle>
-      {article.description && (
-        <DocsDescription>{article.description}</DocsDescription>
-      )}
-      <div className="flex flex-wrap items-center gap-4 border-b pb-6 text-sm text-fd-muted-foreground">
-        <span>Zerx</span>
-        {article.tags && article.tags.length > 0 && (
-          <div className="flex gap-2">
-            {article.tags.map((tag) => (
-              <span
-                key={tag}
-                className="rounded bg-fd-secondary px-2 py-0.5 text-xs"
+    <main className="container px-4 sm:px-6 py-8 lg:py-12">
+      <div className="mx-auto max-w-4xl lg:max-w-6xl">
+        <div className="lg:grid lg:grid-cols-[1fr_220px] lg:gap-12">
+          {/* 主内容 */}
+          <article className="min-w-0">
+            {/* 返回链接 */}
+            <Link
+              href="/blog"
+              className="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors mb-6"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="font-mono">BACK_TO_BLOG</span>
+            </Link>
+
+            {/* 标题 */}
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-gray-900 dark:text-white">
+              {article.title}
+            </h1>
+
+            {/* 描述 */}
+            {article.description && (
+              <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
+                {article.description}
+              </p>
+            )}
+
+            {/* 元信息 */}
+            <div className="flex flex-wrap items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-6 mb-8 text-sm text-gray-500 dark:text-gray-400">
+              <span className="font-mono">Zerx</span>
+              {article.tags && article.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {article.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-xs"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <a
+                href={`https://www.wolai.com/${id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-auto hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors"
               >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-        <a
-          href={`https://www.wolai.com/${id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ml-auto hover:text-fd-primary"
-        >
-          在 wolai 中查看 →
-        </a>
+                在 wolai 中查看 →
+              </a>
+            </div>
+
+            {/* 移动端 TOC */}
+            {toc.length > 0 && (
+              <div className="lg:hidden mb-8">
+                <InlineTOC items={toc} />
+              </div>
+            )}
+
+            {/* 文章内容 */}
+            <div className="prose prose-gray dark:prose-invert max-w-none">
+              <WolaiContent html={html} />
+            </div>
+
+            {/* 底部返回 */}
+            <div className="mt-12 pt-6 border-t border-gray-200 dark:border-gray-800">
+              <Link
+                href="/blog"
+                className="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="font-mono">BACK_TO_BLOG</span>
+              </Link>
+            </div>
+          </article>
+
+          {/* 桌面端 TOC */}
+          {toc.length > 0 && (
+            <aside className="hidden lg:block">
+              <div className="sticky top-20">
+                <p className="text-sm font-medium text-gray-900 dark:text-white mb-4 font-mono">
+                  ON_THIS_PAGE
+                </p>
+                <InlineTOC items={toc} />
+              </div>
+            </aside>
+          )}
+        </div>
       </div>
-      <DocsBody>
-        <WolaiContent html={html} />
-      </DocsBody>
-      <div className="mt-8 border-t pt-6">
-        <Link
-          href="/blog"
-          className="inline-flex items-center gap-2 text-sm text-fd-muted-foreground hover:text-fd-foreground transition-colors"
-        >
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          返回博客列表
-        </Link>
-      </div>
-    </DocsPage>
+    </main>
   );
 }
 
@@ -160,7 +207,6 @@ async function processMarkdown(markdown: string): Promise<{ html: string; toc: T
             dark: 'github-dark',
           },
         });
-        // 包装在 figure 中并添加语言标签
         return `<figure class="code-block not-prose my-6">
           <div class="code-header">
             <span class="text-fd-muted-foreground">${lang}</span>
@@ -168,7 +214,6 @@ async function processMarkdown(markdown: string): Promise<{ html: string; toc: T
           <div class="shiki-wrapper">${highlighted}</div>
         </figure>`;
       } catch {
-        // 如果语言不支持，回退到纯文本
         const escapedCode = code
           .replace(/&/g, '&amp;')
           .replace(/</g, '&lt;')
