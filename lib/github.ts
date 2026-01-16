@@ -291,13 +291,13 @@ export interface GitHubActivity {
   thisMonthCommits: number;
 }
 
-// 生成过去一年的贡献数据（基于 events API）
+// 生成过去一年的贡献数据（基于 events API 和仓库活动）
 async function fetchUserEvents(): Promise<GitHubEvent[]> {
   const allEvents: GitHubEvent[] = [];
 
   try {
     // GitHub Events API 最多返回 300 个事件，分页获取
-    for (let page = 1; page <= 3; page++) {
+    for (let page = 1; page <= 10; page++) {
       const res = await fetch(
         `https://api.github.com/users/${OWNER}/events/public?per_page=100&page=${page}`,
         {
@@ -323,28 +323,71 @@ async function fetchUserEvents(): Promise<GitHubEvent[]> {
   }
 }
 
-// 根据事件生成贡献热力图数据
-function generateContributionData(events: GitHubEvent[]): ContributionDay[] {
+// 根据事件和仓库活动生成贡献热力图数据
+function generateContributionData(
+  events: GitHubEvent[],
+  repos: GitHubRepo[]
+): ContributionDay[] {
   const today = new Date();
+  today.setHours(23, 59, 59, 999);
   const oneYearAgo = new Date(today);
   oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
   // 统计每天的事件数量
   const dailyCounts: Record<string, number> = {};
 
+  // 从 events API 获取数据
   for (const event of events) {
     const date = event.created_at.split('T')[0];
     dailyCounts[date] = (dailyCounts[date] || 0) + 1;
   }
 
-  // 生成过去一年的所有日期
+  // 从仓库的 pushed_at 时间补充历史数据
+  for (const repo of repos) {
+    if (repo.fork || repo.archived) continue;
+
+    // 使用 pushed_at 作为活动指标
+    if (repo.pushed_at) {
+      const pushDate = repo.pushed_at.split('T')[0];
+      const pushTime = new Date(pushDate);
+      if (pushTime >= oneYearAgo && pushTime <= today) {
+        dailyCounts[pushDate] = (dailyCounts[pushDate] || 0) + 1;
+      }
+    }
+
+    // 使用 created_at 作为额外活动指标
+    if (repo.created_at) {
+      const createDate = repo.created_at.split('T')[0];
+      const createTime = new Date(createDate);
+      if (createTime >= oneYearAgo && createTime <= today) {
+        dailyCounts[createDate] = (dailyCounts[createDate] || 0) + 2;
+      }
+    }
+
+    // 使用 updated_at 补充数据
+    if (repo.updated_at) {
+      const updateDate = repo.updated_at.split('T')[0];
+      const updateTime = new Date(updateDate);
+      if (updateTime >= oneYearAgo && updateTime <= today) {
+        dailyCounts[updateDate] = (dailyCounts[updateDate] || 0) + 1;
+      }
+    }
+  }
+
+  // 找到第一个周日作为起点（一年前的那个周的周日）
+  const startDate = new Date(oneYearAgo);
+  startDate.setDate(startDate.getDate() - startDate.getDay());
+
+  // 找到当前周的周六作为终点
+  const endDate = new Date(today);
+  const daysUntilSaturday = 6 - endDate.getDay();
+  endDate.setDate(endDate.getDate() + daysUntilSaturday);
+
+  // 生成从起点到终点的所有日期
   const contributions: ContributionDay[] = [];
-  const current = new Date(oneYearAgo);
+  const current = new Date(startDate);
 
-  // 从上一个周日开始
-  current.setDate(current.getDate() - current.getDay());
-
-  while (current <= today) {
+  while (current <= endDate) {
     const dateStr = current.toISOString().split('T')[0];
     const count = dailyCounts[dateStr] || 0;
 
@@ -352,8 +395,8 @@ function generateContributionData(events: GitHubEvent[]): ContributionDay[] {
     let level: 0 | 1 | 2 | 3 | 4 = 0;
     if (count > 0) level = 1;
     if (count >= 3) level = 2;
-    if (count >= 6) level = 3;
-    if (count >= 10) level = 4;
+    if (count >= 5) level = 3;
+    if (count >= 8) level = 4;
 
     contributions.push({
       date: dateStr,
@@ -376,12 +419,16 @@ function calculateStreaks(contributions: ContributionDay[]): { current: number; 
   const today = new Date().toISOString().split('T')[0];
   const reversedContributions = [...contributions].reverse();
 
-  // 计算当前连续天数
+  // 计算当前连续天数（从今天往前数）
+  let foundToday = false;
   for (const day of reversedContributions) {
     if (day.date > today) continue;
+    if (!foundToday && day.date === today) {
+      foundToday = true;
+    }
     if (day.count > 0) {
       currentStreak++;
-    } else {
+    } else if (foundToday || day.date < today) {
       break;
     }
   }
@@ -401,8 +448,13 @@ function calculateStreaks(contributions: ContributionDay[]): { current: number; 
 
 export async function getGitHubActivity(): Promise<GitHubActivity> {
   try {
-    const events = await fetchUserEvents();
-    const contributions = generateContributionData(events);
+    // 并行获取 events 和 repos 数据
+    const [events, repos] = await Promise.all([
+      fetchUserEvents(),
+      fetchAllRepos(),
+    ]);
+
+    const contributions = generateContributionData(events, repos);
     const { current, longest } = calculateStreaks(contributions);
 
     // 计算本周和本月的提交数
@@ -417,8 +469,8 @@ export async function getGitHubActivity(): Promise<GitHubActivity> {
 
     for (const day of contributions) {
       const date = new Date(day.date);
-      if (date >= weekAgo) thisWeekCommits += day.count;
-      if (date >= monthAgo) thisMonthCommits += day.count;
+      if (date >= weekAgo && date <= today) thisWeekCommits += day.count;
+      if (date >= monthAgo && date <= today) thisMonthCommits += day.count;
     }
 
     const totalContributions = contributions.reduce((sum, day) => sum + day.count, 0);

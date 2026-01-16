@@ -30,28 +30,49 @@ interface ContributionGraphProps {
 }
 
 function ContributionGraph({ contributions }: ContributionGraphProps) {
-  // 将贡献数据按周组织
+  // 将贡献数据按周组织（每7天一组，周日开始）
   const weeks = useMemo(() => {
+    if (contributions.length === 0) return [];
+
     const result: typeof contributions[] = [];
-    for (let i = 0; i < contributions.length; i += 7) {
-      result.push(contributions.slice(i, i + 7));
+    let currentWeek: typeof contributions = [];
+
+    for (let i = 0; i < contributions.length; i++) {
+      const day = contributions[i];
+      const dayOfWeek = new Date(day.date).getDay();
+
+      // 如果是周日且当前周不为空，开始新的一周
+      if (dayOfWeek === 0 && currentWeek.length > 0) {
+        result.push(currentWeek);
+        currentWeek = [];
+      }
+
+      currentWeek.push(day);
     }
+
+    // 添加最后一周
+    if (currentWeek.length > 0) {
+      result.push(currentWeek);
+    }
+
     return result;
   }, [contributions]);
 
-  // 月份标签
+  // 月份标签 - 在每月第一周显示
   const months = useMemo(() => {
-    const monthLabels: { month: string; index: number }[] = [];
+    const monthLabels: { month: string; weekIndex: number }[] = [];
     let lastMonth = -1;
 
     weeks.forEach((week, weekIndex) => {
+      // 使用每周的第一天来判断月份
       if (week.length > 0) {
-        const date = new Date(week[0].date);
-        const month = date.getMonth();
+        const firstDayOfWeek = new Date(week[0].date);
+        const month = firstDayOfWeek.getMonth();
+
         if (month !== lastMonth) {
           monthLabels.push({
-            month: date.toLocaleString('en-US', { month: 'short' }),
-            index: weekIndex,
+            month: firstDayOfWeek.toLocaleString('en-US', { month: 'short' }),
+            weekIndex,
           });
           lastMonth = month;
         }
@@ -63,31 +84,43 @@ function ContributionGraph({ contributions }: ContributionGraphProps) {
 
   const dayLabels = ['Sun', '', 'Tue', '', 'Thu', '', 'Sat'];
 
+  if (contributions.length === 0) {
+    return (
+      <div className="text-center py-8 text-gray-500 dark:text-gray-500 font-mono text-sm">
+        // NO_DATA_AVAILABLE
+      </div>
+    );
+  }
+
   return (
     <div className="overflow-x-auto pb-2">
-      <div className="min-w-[720px]">
+      <div className="min-w-[750px]">
         {/* 月份标签 */}
-        <div className="flex mb-2 pl-8">
-          {months.map((m, i) => (
-            <div
-              key={`${m.month}-${i}`}
-              className="text-[10px] font-mono text-gray-500 dark:text-gray-500"
-              style={{
-                marginLeft: i === 0 ? `${m.index * 13}px` : `${(m.index - months[i - 1].index - 4) * 13}px`,
-              }}
-            >
-              {m.month}
-            </div>
-          ))}
+        <div className="flex mb-2 ml-8 text-[10px] font-mono text-gray-500 dark:text-gray-500">
+          {months.map((m, i) => {
+            // 计算每个月份标签的左边距
+            const prevWeekIndex = i === 0 ? 0 : months[i - 1].weekIndex;
+            const gap = i === 0 ? m.weekIndex : m.weekIndex - prevWeekIndex;
+            return (
+              <div
+                key={`${m.month}-${i}`}
+                style={{ width: `${gap * 14}px` }}
+                className="flex-shrink-0"
+              >
+                {m.month}
+              </div>
+            );
+          })}
         </div>
 
         <div className="flex gap-0.5">
           {/* 星期标签 */}
-          <div className="flex flex-col gap-0.5 mr-2">
+          <div className="flex flex-col gap-[3px] mr-2 flex-shrink-0">
             {dayLabels.map((day, i) => (
               <div
                 key={i}
-                className="h-[11px] text-[9px] font-mono text-gray-400 dark:text-gray-600 flex items-center"
+                className="h-[11px] text-[9px] font-mono text-gray-400 dark:text-gray-600 flex items-center justify-end pr-1"
+                style={{ width: '24px' }}
               >
                 {day}
               </div>
@@ -98,6 +131,18 @@ function ContributionGraph({ contributions }: ContributionGraphProps) {
           <div className="flex gap-[3px]">
             {weeks.map((week, weekIndex) => (
               <div key={weekIndex} className="flex flex-col gap-[3px]">
+                {/* 补齐周开始的空白（如果第一天不是周日） */}
+                {week.length > 0 && weekIndex === 0 && (() => {
+                  const firstDayOfWeek = new Date(week[0].date).getDay();
+                  return Array(firstDayOfWeek)
+                    .fill(null)
+                    .map((_, i) => (
+                      <div
+                        key={`start-empty-${i}`}
+                        className="w-[11px] h-[11px] rounded-sm"
+                      />
+                    ));
+                })()}
                 {week.map((day, dayIndex) => (
                   <div
                     key={`${weekIndex}-${dayIndex}`}
@@ -108,16 +153,18 @@ function ContributionGraph({ contributions }: ContributionGraphProps) {
                     title={`${day.date}: ${day.count} contributions`}
                   />
                 ))}
-                {/* 补齐不足7天的周 */}
-                {week.length < 7 &&
-                  Array(7 - week.length)
+                {/* 补齐周末的空白 */}
+                {week.length > 0 && weekIndex === weeks.length - 1 && (() => {
+                  const lastDayOfWeek = new Date(week[week.length - 1].date).getDay();
+                  return Array(6 - lastDayOfWeek)
                     .fill(null)
                     .map((_, i) => (
                       <div
-                        key={`empty-${weekIndex}-${i}`}
-                        className="w-[11px] h-[11px] rounded-sm bg-transparent"
+                        key={`end-empty-${i}`}
+                        className="w-[11px] h-[11px] rounded-sm"
                       />
-                    ))}
+                    ));
+                })()}
               </div>
             ))}
           </div>
