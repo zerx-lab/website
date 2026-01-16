@@ -265,3 +265,182 @@ export async function getGitHubStars(): Promise<RepoStars> {
 
   return result;
 }
+
+// GitHub Events API 用于活动统计
+interface GitHubEvent {
+  id: string;
+  type: string;
+  created_at: string;
+  repo: {
+    name: string;
+  };
+}
+
+export interface ContributionDay {
+  date: string;
+  count: number;
+  level: 0 | 1 | 2 | 3 | 4;
+}
+
+export interface GitHubActivity {
+  contributions: ContributionDay[];
+  totalContributions: number;
+  currentStreak: number;
+  longestStreak: number;
+  thisWeekCommits: number;
+  thisMonthCommits: number;
+}
+
+// 生成过去一年的贡献数据（基于 events API）
+async function fetchUserEvents(): Promise<GitHubEvent[]> {
+  const allEvents: GitHubEvent[] = [];
+
+  try {
+    // GitHub Events API 最多返回 300 个事件，分页获取
+    for (let page = 1; page <= 3; page++) {
+      const res = await fetch(
+        `https://api.github.com/users/${OWNER}/events/public?per_page=100&page=${page}`,
+        {
+          headers: getHeaders(),
+          next: { revalidate: REVALIDATE_SECONDS },
+        }
+      );
+
+      if (!res.ok) {
+        console.warn(`[GitHub API] Failed to fetch events page ${page}: ${res.status}`);
+        break;
+      }
+
+      const events: GitHubEvent[] = await res.json();
+      if (events.length === 0) break;
+      allEvents.push(...events);
+    }
+
+    return allEvents;
+  } catch (error) {
+    console.error('[GitHub API] Error fetching events:', error);
+    return [];
+  }
+}
+
+// 根据事件生成贡献热力图数据
+function generateContributionData(events: GitHubEvent[]): ContributionDay[] {
+  const today = new Date();
+  const oneYearAgo = new Date(today);
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+  // 统计每天的事件数量
+  const dailyCounts: Record<string, number> = {};
+
+  for (const event of events) {
+    const date = event.created_at.split('T')[0];
+    dailyCounts[date] = (dailyCounts[date] || 0) + 1;
+  }
+
+  // 生成过去一年的所有日期
+  const contributions: ContributionDay[] = [];
+  const current = new Date(oneYearAgo);
+
+  // 从上一个周日开始
+  current.setDate(current.getDate() - current.getDay());
+
+  while (current <= today) {
+    const dateStr = current.toISOString().split('T')[0];
+    const count = dailyCounts[dateStr] || 0;
+
+    // 计算活跃级别 (0-4)
+    let level: 0 | 1 | 2 | 3 | 4 = 0;
+    if (count > 0) level = 1;
+    if (count >= 3) level = 2;
+    if (count >= 6) level = 3;
+    if (count >= 10) level = 4;
+
+    contributions.push({
+      date: dateStr,
+      count,
+      level,
+    });
+
+    current.setDate(current.getDate() + 1);
+  }
+
+  return contributions;
+}
+
+// 计算连续贡献天数
+function calculateStreaks(contributions: ContributionDay[]): { current: number; longest: number } {
+  let currentStreak = 0;
+  let longestStreak = 0;
+  let tempStreak = 0;
+
+  const today = new Date().toISOString().split('T')[0];
+  const reversedContributions = [...contributions].reverse();
+
+  // 计算当前连续天数
+  for (const day of reversedContributions) {
+    if (day.date > today) continue;
+    if (day.count > 0) {
+      currentStreak++;
+    } else {
+      break;
+    }
+  }
+
+  // 计算最长连续天数
+  for (const day of contributions) {
+    if (day.count > 0) {
+      tempStreak++;
+      longestStreak = Math.max(longestStreak, tempStreak);
+    } else {
+      tempStreak = 0;
+    }
+  }
+
+  return { current: currentStreak, longest: longestStreak };
+}
+
+export async function getGitHubActivity(): Promise<GitHubActivity> {
+  try {
+    const events = await fetchUserEvents();
+    const contributions = generateContributionData(events);
+    const { current, longest } = calculateStreaks(contributions);
+
+    // 计算本周和本月的提交数
+    const today = new Date();
+    const weekAgo = new Date(today);
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    const monthAgo = new Date(today);
+    monthAgo.setMonth(monthAgo.getMonth() - 1);
+
+    let thisWeekCommits = 0;
+    let thisMonthCommits = 0;
+
+    for (const day of contributions) {
+      const date = new Date(day.date);
+      if (date >= weekAgo) thisWeekCommits += day.count;
+      if (date >= monthAgo) thisMonthCommits += day.count;
+    }
+
+    const totalContributions = contributions.reduce((sum, day) => sum + day.count, 0);
+
+    return {
+      contributions,
+      totalContributions,
+      currentStreak: current,
+      longestStreak: longest,
+      thisWeekCommits,
+      thisMonthCommits,
+    };
+  } catch (error) {
+    console.error('[GitHub API] Error in getGitHubActivity:', error);
+    // 返回空数据
+    return {
+      contributions: [],
+      totalContributions: 0,
+      currentStreak: 0,
+      longestStreak: 0,
+      thisWeekCommits: 0,
+      thisMonthCommits: 0,
+    };
+  }
+}

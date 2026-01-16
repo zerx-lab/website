@@ -1,7 +1,6 @@
 import { defineConfig, defineDocs, frontmatterSchema, metaSchema } from 'fumadocs-mdx/config';
 
-// You can customise Zod schemas for frontmatter and `meta.json` here
-// see https://fumadocs.dev/docs/mdx/collections
+// 文档集合配置
 export const docs = defineDocs({
   dir: 'content/docs',
   docs: {
@@ -9,6 +8,17 @@ export const docs = defineDocs({
     postprocess: {
       includeProcessedMarkdown: true,
     },
+  },
+  meta: {
+    schema: metaSchema,
+  },
+});
+
+// 博客集合配置 - 使用 defineDocs 创建独立的博客集合
+export const blog = defineDocs({
+  dir: 'content/blog',
+  docs: {
+    schema: frontmatterSchema,
   },
   meta: {
     schema: metaSchema,
