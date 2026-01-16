@@ -1,28 +1,28 @@
 /**
- * wolai API Client
+ * wolai API Client with Caching
  *
  * API Base URL: https://openapi.wolai.com/v1/
- *
- * Available Endpoints:
- * - POST /token - Get access token
- * - GET /blocks/{id}/children - Query block children
- * - GET /blocks/{id} - Get block details
- * - POST /blocks - Create blocks
- * - GET /databases/{id} - Get database data (rows)
+ * 支持文件缓存，减少 API 请求，提升响应速度
  */
 
-const WOLAI_API_BASE = 'https://openapi.wolai.com/v1';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as crypto from 'crypto';
 
-// Cache token in memory (token doesn't expire: expire_time = -1)
+const WOLAI_API_BASE = 'https://openapi.wolai.com/v1';
+const CACHE_DIR = path.join(process.cwd(), '.wolai-cache');
+const CACHE_TTL = 60 * 60 * 1000; // 1 小时缓存过期
+
+// Token 内存缓存
 let cachedToken: string | null = null;
+
+// ============== 类型定义 ==============
 
 interface WolaiTokenResponse {
   data: {
     app_id: string;
     app_token: string;
     expire_time: number;
-    update_time: number;
-    create_time: number;
   };
 }
 
@@ -30,6 +30,12 @@ interface WolaiBlockContent {
   title?: string;
   text?: string;
   type?: string;
+  bold?: boolean;
+  italic?: boolean;
+  strikethrough?: boolean;
+  inline_code?: boolean;
+  link?: string;
+  url?: string;
 }
 
 interface WolaiBlock {
@@ -39,10 +45,7 @@ interface WolaiBlock {
   language?: string;
   parent_id?: string;
   page_id?: string;
-  children?: {
-    ids: string[];
-    api_url: string | null;
-  };
+  children?: { ids: string[]; api_url: string | null };
 }
 
 interface WolaiDatabaseRow {
@@ -80,9 +83,63 @@ export interface WolaiArticle {
   status?: string;
 }
 
-/**
- * Get access token from wolai API
- */
+interface CacheEntry<T> {
+  data: T;
+  hash: string;
+  timestamp: number;
+}
+
+// ============== 缓存工具函数 ==============
+
+function ensureCacheDir(): void {
+  if (!fs.existsSync(CACHE_DIR)) {
+    fs.mkdirSync(CACHE_DIR, { recursive: true });
+  }
+}
+
+function getCachePath(key: string): string {
+  const safeKey = key.replace(/[^a-zA-Z0-9]/g, '_');
+  return path.join(CACHE_DIR, `${safeKey}.json`);
+}
+
+function computeHash(data: unknown): string {
+  return crypto.createHash('md5').update(JSON.stringify(data)).digest('hex');
+}
+
+function readCache<T>(key: string): CacheEntry<T> | null {
+  try {
+    const cachePath = getCachePath(key);
+    if (fs.existsSync(cachePath)) {
+      const content = fs.readFileSync(cachePath, 'utf-8');
+      const entry: CacheEntry<T> = JSON.parse(content);
+
+      // 检查是否过期
+      if (Date.now() - entry.timestamp < CACHE_TTL) {
+        return entry;
+      }
+    }
+  } catch {
+    // 缓存读取失败，忽略
+  }
+  return null;
+}
+
+function writeCache<T>(key: string, data: T): void {
+  try {
+    ensureCacheDir();
+    const entry: CacheEntry<T> = {
+      data,
+      hash: computeHash(data),
+      timestamp: Date.now(),
+    };
+    fs.writeFileSync(getCachePath(key), JSON.stringify(entry));
+  } catch {
+    // 缓存写入失败，忽略
+  }
+}
+
+// ============== API 请求函数 ==============
+
 async function getToken(): Promise<string> {
   if (cachedToken) {
     return cachedToken;
@@ -97,13 +154,8 @@ async function getToken(): Promise<string> {
 
   const response = await fetch(`${WOLAI_API_BASE}/token`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      appId,
-      appSecret,
-    }),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ appId, appSecret }),
   });
 
   if (!response.ok) {
@@ -112,61 +164,85 @@ async function getToken(): Promise<string> {
 
   const data: WolaiTokenResponse = await response.json();
   cachedToken = data.data.app_token;
-
   return cachedToken;
 }
 
-/**
- * Make authenticated request to wolai API
- */
 async function wolaiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = await getToken();
 
-  const response = await fetch(`${WOLAI_API_BASE}${endpoint}`, {
-    ...options,
-    headers: {
-      Authorization: token,
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000); // 30秒超时
 
-  const data = await response.json();
+  try {
+    const response = await fetch(`${WOLAI_API_BASE}${endpoint}`, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        Authorization: token,
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+    });
 
-  if (!response.ok || data.error_code) {
-    const error = data as WolaiError;
-    throw new Error(`Wolai API Error: ${error.message} (code: ${error.error_code})`);
+    const data = await response.json();
+
+    if (!response.ok || data.error_code) {
+      const error = data as WolaiError;
+      throw new Error(`Wolai API Error: ${error.message} (code: ${error.error_code})`);
+    }
+
+    return data;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+// ============== 带缓存的 API 函数 ==============
+
+export async function getDatabase(databaseId: string): Promise<WolaiDatabaseResponse> {
+  const cacheKey = `db_${databaseId}`;
+
+  // 尝试读取缓存
+  const cached = readCache<WolaiDatabaseResponse>(cacheKey);
+  if (cached) {
+    console.log('[Wolai] 使用缓存的数据库数据');
+    return cached.data;
   }
 
+  // 请求 API
+  console.log('[Wolai] 请求数据库数据...');
+  const data = await wolaiRequest<WolaiDatabaseResponse>(`/databases/${databaseId}`);
+
+  // 写入缓存
+  writeCache(cacheKey, data);
   return data;
 }
 
-/**
- * Get database data (rows)
- */
-export async function getDatabase(databaseId: string): Promise<WolaiDatabaseResponse> {
-  return wolaiRequest<WolaiDatabaseResponse>(`/databases/${databaseId}`);
-}
-
-/**
- * Get block children
- */
 export async function getBlockChildren(blockId: string): Promise<WolaiBlockChildrenResponse> {
-  return wolaiRequest<WolaiBlockChildrenResponse>(`/blocks/${blockId}/children`);
+  const cacheKey = `block_${blockId}`;
+
+  // 尝试读取缓存
+  const cached = readCache<WolaiBlockChildrenResponse>(cacheKey);
+  if (cached) {
+    console.log(`[Wolai] 使用缓存的文章内容: ${blockId}`);
+    return cached.data;
+  }
+
+  // 请求 API
+  console.log(`[Wolai] 请求文章内容: ${blockId}...`);
+  const data = await wolaiRequest<WolaiBlockChildrenResponse>(`/blocks/${blockId}/children`);
+
+  // 写入缓存
+  writeCache(cacheKey, data);
+  return data;
 }
 
-/**
- * Get block details
- */
 export async function getBlock(blockId: string): Promise<{ data: WolaiBlock }> {
   return wolaiRequest(`/blocks/${blockId}`);
 }
 
-/**
- * Get articles from wolai database
- * This function fetches articles from a wolai database and transforms them
- * into a format suitable for the blog
- */
+// ============== 高级 API 函数 ==============
+
 export async function getWolaiArticles(databaseId?: string): Promise<WolaiArticle[]> {
   const dbId = databaseId || process.env.WOLAI_DATABASE_ID;
 
@@ -178,15 +254,12 @@ export async function getWolaiArticles(databaseId?: string): Promise<WolaiArticl
   try {
     const response = await getDatabase(dbId);
 
-    // Transform database rows to articles
     const articles: WolaiArticle[] = response.data.rows.map((row) => {
       const data = row.data;
 
-      // Extract title from the data - wolai uses { type, value } format
       const titleField = data['标题'] || data['title'] || data['Title'];
       const title = titleField?.value || '';
 
-      // Extract other fields if they exist
       const descField = data['描述'] || data['description'] || data['Description'];
       const description = descField?.value;
 
@@ -205,7 +278,6 @@ export async function getWolaiArticles(databaseId?: string): Promise<WolaiArticl
       };
     });
 
-    // Filter out articles without title and draft articles
     return articles.filter(
       (article) => article.title && (!article.status || article.status === '已发布' || article.status === 'Published')
     );
@@ -215,9 +287,6 @@ export async function getWolaiArticles(databaseId?: string): Promise<WolaiArticl
   }
 }
 
-/**
- * Get article content by block ID
- */
 export async function getWolaiArticleContent(blockId: string): Promise<string> {
   try {
     const response = await getBlockChildren(blockId);
@@ -228,55 +297,126 @@ export async function getWolaiArticleContent(blockId: string): Promise<string> {
   }
 }
 
-/**
- * Convert wolai blocks to markdown
- */
+// ============== Markdown 转换 ==============
+
+function richTextToMarkdown(content: WolaiBlockContent[]): string {
+  if (!content?.length) return '';
+
+  return content
+    .map((item) => {
+      let text = item.title || item.text || '';
+      if (!text) return '';
+
+      if (item.link) text = `[${text}](${item.link})`;
+      if (item.inline_code) text = `\`${text}\``;
+      if (item.bold) text = `**${text}**`;
+      if (item.italic) text = `*${text}*`;
+      if (item.strikethrough) text = `~~${text}~~`;
+
+      return text;
+    })
+    .join('');
+}
+
 function blocksToMarkdown(blocks: WolaiBlock[]): string {
   if (!blocks || blocks.length === 0) return '';
 
   return blocks
     .map((block) => {
-      // wolai content is an array of { title/text, type } objects
       const contentArray = block.content || [];
-      const text = contentArray.map((c) => c.title || c.text || '').join('');
+      const text = richTextToMarkdown(contentArray);
 
       switch (block.type) {
         case 'heading':
         case 'heading_1':
-          return `# ${text}\n`;
+          return `# ${text}`;
         case 'heading_2':
-          return `## ${text}\n`;
+          return `## ${text}`;
         case 'heading_3':
-          return `### ${text}\n`;
+          return `### ${text}`;
         case 'paragraph':
         case 'text':
-          return text ? `${text}\n` : '';
+          return text || '';
         case 'bulleted_list_item':
         case 'bullet_list':
-          return `- ${text}\n`;
+          return `- ${text}`;
         case 'numbered_list_item':
-        case 'numbered_list':
-          return `1. ${text}\n`;
+        case 'enum_list':
+          return `1. ${text}`;
         case 'code':
-          // wolai puts language at block level, not in content
           const language = block.language?.toLowerCase() || '';
-          return `\`\`\`${language}\n${text}\n\`\`\`\n`;
+          return `\`\`\`${language}\n${text}\n\`\`\``;
         case 'quote':
         case 'callout':
-          return `> ${text}\n`;
+          return text
+            .split('\n')
+            .map((line) => `> ${line}`)
+            .join('\n');
         case 'divider':
-          return `---\n`;
+          return '---';
         case 'image':
-          // Handle image blocks
-          const imgContent = contentArray[0];
-          const imgUrl = (imgContent as Record<string, unknown>)?.url as string | undefined;
-          return imgUrl ? `![${text || 'image'}](${imgUrl})\n` : '';
+          const imgUrl = contentArray[0]?.url;
+          return imgUrl ? `![${text || 'image'}](${imgUrl})` : '';
         default:
-          return text ? `${text}\n` : '';
+          return text || '';
       }
     })
     .filter(Boolean)
-    .join('\n');
+    .join('\n\n');
+}
+
+// ============== 缓存管理 ==============
+
+/** 清除所有缓存 */
+export function clearCache(): void {
+  try {
+    if (fs.existsSync(CACHE_DIR)) {
+      const files = fs.readdirSync(CACHE_DIR);
+      for (const file of files) {
+        fs.unlinkSync(path.join(CACHE_DIR, file));
+      }
+      console.log('[Wolai] 缓存已清除');
+    }
+  } catch (error) {
+    console.error('[Wolai] 清除缓存失败:', error);
+  }
+}
+
+/** 清除指定文章的缓存 */
+export function clearArticleCache(blockId: string): void {
+  try {
+    const cachePath = getCachePath(`block_${blockId}`);
+    if (fs.existsSync(cachePath)) {
+      fs.unlinkSync(cachePath);
+      console.log(`[Wolai] 已清除文章缓存: ${blockId}`);
+    }
+  } catch (error) {
+    console.error('[Wolai] 清除文章缓存失败:', error);
+  }
+}
+
+/** 获取缓存状态 */
+export function getCacheStats(): { files: number; size: number; entries: string[] } {
+  try {
+    if (!fs.existsSync(CACHE_DIR)) {
+      return { files: 0, size: 0, entries: [] };
+    }
+
+    const files = fs.readdirSync(CACHE_DIR);
+    let totalSize = 0;
+    const entries: string[] = [];
+
+    for (const file of files) {
+      const filePath = path.join(CACHE_DIR, file);
+      const stats = fs.statSync(filePath);
+      totalSize += stats.size;
+      entries.push(file.replace('.json', ''));
+    }
+
+    return { files: files.length, size: totalSize, entries };
+  } catch {
+    return { files: 0, size: 0, entries: [] };
+  }
 }
 
 // Re-export types
