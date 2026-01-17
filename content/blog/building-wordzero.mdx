@@ -1,0 +1,88 @@
+---
+title: 构建 wordZero：Go 语言文档处理库的设计之旅
+description: 分享我开发 wordZero 这个高性能 Go 语言 .docx 处理库的设计思路和技术挑战。深入探讨架构设计、性能优化和 API 设计哲学。
+---
+
+# 构建 wordZero：Go 语言文档处理库的设计之旅
+
+在这篇文章中，我想分享开发 [wordZero](https://github.com/zerx-lab/wordZero) 的心路历程，这是一个零依赖的高性能 Go 语言 .docx 文档处理库。
+
+## 为什么要造轮子？
+
+在开始这个项目之前，我调研了现有的 Go 语言文档处理库，发现：
+
+- 大多数库依赖众多外部包
+- 性能在处理大文档时不够理想
+- API 设计不够直观
+
+因此，我决定从零开始构建一个更好的解决方案。
+
+## 设计原则
+
+### 1. 零依赖
+
+wordZero 不依赖任何第三方库，只使用 Go 标准库：
+
+```go
+import (
+    "archive/zip"
+    "encoding/xml"
+    "io"
+)
+```
+
+这带来了几个好处：
+- 更小的二进制文件
+- 更少的安全风险
+- 更简单的依赖管理
+
+### 2. 流式处理
+
+对于大文档，我们采用流式处理而非一次性加载到内存：
+
+```go
+func (d *Document) StreamParagraphs(fn func(p *Paragraph) error) error {
+    // 逐段处理，避免内存峰值
+}
+```
+
+### 3. 链式 API
+
+为了提供更好的开发体验，我们设计了链式 API：
+
+```go
+doc.AddParagraph("Hello").
+    SetBold(true).
+    SetFontSize(14).
+    SetColor("#333333")
+```
+
+## 性能优化
+
+### 内存池
+
+使用 `sync.Pool` 复用对象，减少 GC 压力：
+
+```go
+var paragraphPool = sync.Pool{
+    New: func() interface{} {
+        return &Paragraph{}
+    },
+}
+```
+
+### 惰性解析
+
+只在需要时才解析文档的特定部分，而不是一开始就解析整个文档。
+
+## 未来计划
+
+- [ ] 支持更多格式（表格、图片）
+- [ ] 添加 PDF 导出功能
+- [ ] 提供 CLI 工具
+
+## 总结
+
+构建 wordZero 是一次很有价值的经历，它让我对文档格式有了更深的理解，也提升了我在 Go 语言性能优化方面的能力。
+
+如果你对这个项目感兴趣，欢迎在 [GitHub](https://github.com/zerx-lab/wordZero) 上给个 Star ⭐

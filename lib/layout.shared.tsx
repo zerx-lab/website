@@ -16,6 +16,11 @@ export function baseOptions(): BaseLayoutProps {
     },
     links: [
       {
+        text: '博客',
+        url: '/blog',
+        active: 'nested-url',
+      },
+      {
         text: '文档',
         url: '/docs',
         active: 'nested-url',
