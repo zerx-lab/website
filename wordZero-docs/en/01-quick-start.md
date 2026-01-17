@@ -67,13 +67,29 @@ doc.AddHeadingParagraph("Chapter 1: Introduction", 1)
 // Add formatted text
 format := &document.TextFormat{
     Bold:      true,
-    FontSize:  14,
-    FontColor: "FF0000", // Red color
+    FontSize:  14,        // int type (points)
+    FontColor: "FF0000",  // Red color
 }
 doc.AddFormattedParagraph("Bold red text", format)
 ```
 
-### Adding Multiple Formatted Text in One Paragraph
+### TextFormat Structure
+
+```go
+type TextFormat struct {
+    Bold       bool   // Bold text
+    Italic     bool   // Italic text
+    FontSize   int    // Font size in points
+    FontColor  string // Hex color code (e.g., "FF0000")
+    FontFamily string // Font name (e.g., "Arial")
+    FontName   string // Font name alias
+    Underline  bool   // Underlined text
+    Strike     bool   // Strikethrough text
+    Highlight  string // Highlight color
+}
+```
+
+### Adding Multiple Runs to a Paragraph
 
 ```go
 para := doc.AddParagraph("")
@@ -119,18 +135,27 @@ para.SetStyle(style.StyleHeading1)
 ## Creating Tables
 
 ```go
-// Create a 3x3 table
-table := doc.AddTable(3, 3)
+// Create a table using TableConfig
+table, err := doc.AddTable(&document.TableConfig{
+    Rows:  3,
+    Cols:  3,
+    Width: 8000, // Width in points
+    Data: [][]string{
+        {"Header 1", "Header 2", "Header 3"},
+        {"Data 1", "Data 2", "Data 3"},
+        {"Data 4", "Data 5", "Data 6"},
+    },
+})
+if err != nil {
+    log.Fatal(err)
+}
 
-// Set cell content
-table.Rows[0].Cells[0].AddParagraph("Header 1")
-table.Rows[0].Cells[1].AddParagraph("Header 2")
-table.Rows[0].Cells[2].AddParagraph("Header 3")
-
-// Add data rows
-table.Rows[1].Cells[0].AddParagraph("Data 1")
-table.Rows[1].Cells[1].AddParagraph("Data 2")
-table.Rows[1].Cells[2].AddParagraph("Data 3")
+// Or use CreateTable
+table, err := doc.CreateTable(&document.TableConfig{
+    Rows:  3,
+    Cols:  4,
+    Width: 8000,
+})
 ```
 
 ## Page Settings
@@ -142,19 +167,24 @@ doc.SetPageSize(document.PageSizeA4)
 // Set page orientation to landscape
 doc.SetPageOrientation(document.OrientationLandscape)
 
-// Set custom margins (in twips: 1 inch = 1440 twips)
-doc.SetPageMargins(1440, 1440, 1440, 1440) // top, right, bottom, left
+// Set margins (top, right, bottom, left in float64)
+doc.SetPageMargins(25.4, 25.4, 25.4, 25.4)
 ```
 
 ## Adding Images
 
 ```go
-// Add image from file
+// Add image from file with size configuration
 imgConfig := &document.ImageConfig{
-    Width:  300, // points
-    Height: 200,
+    Size: &document.ImageSize{
+        Width:  100, // Width in millimeters
+        Height: 80,  // Height in millimeters
+    },
 }
-err := doc.AddImageFromFile("photo.jpg", imgConfig)
+info, err := doc.AddImageFromFile("photo.jpg", imgConfig)
+if err != nil {
+    log.Fatal(err)
+}
 ```
 
 ## Next Steps
