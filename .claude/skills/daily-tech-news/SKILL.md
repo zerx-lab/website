@@ -7,10 +7,6 @@ description: "每日技术资讯搜集。搜索 AI、GitHub、前端、后端、
 
 自动搜索并汇总当日技术资讯，生成 Markdown 博客文章。
 
-## 执行流程
-
-当用户调用 `/daily-tech-news` 或请求搜集技术资讯时，按以下步骤执行：
-
 ### Step 1: 确定搜索日期
 
 默认搜索**昨天**的资讯（因为当天资讯可能不完整）。
@@ -65,9 +61,9 @@ description: "每日技术资讯搜集。搜索 AI、GitHub、前端、后端、
 - "developer tools announcement {date}"
 ```
 
-### Step 3: 可选 - 使用 WebFetch 获取详情
+### Step 3: 使用 WebFetch 获取详情
 
-对于重要资讯，可以使用 WebFetch 工具获取更多详细内容。
+使用 WebFetch 工具获取更多详细内容。
 
 ### Step 4: 生成博客文章
 
@@ -145,11 +141,4 @@ git commit -m "docs: add daily tech news for {date}"
 - 避免重复内容
 - 如果某个领域当天没有重要资讯，可以跳过该分类
 - 搜索时使用英文关键词效果更好，但输出为中文
-
-## 示例调用
-
-```
-用户: /daily-tech-news
-用户: 搜集今天的技术资讯
-用户: 生成每日技术新闻
 ```
