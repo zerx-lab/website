@@ -61,6 +61,7 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
     data: {
       title: page.data.title,
       description: page.data.description,
+      date: (page.data as { date?: string }).date,
     },
   }));
 
@@ -84,8 +85,12 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
     console.warn('[Blog] Failed to fetch wolai articles:', error);
   }
 
-  // 合并并按日期排序（如果有日期的话）
-  const allPosts = [...mdxPosts, ...wolaiPosts];
+  // 合并并按日期降序排序（最新的在前）
+  const allPosts = [...mdxPosts, ...wolaiPosts].sort((a, b) => {
+    const dateA = a.data.date ? new Date(a.data.date).getTime() : 0;
+    const dateB = b.data.date ? new Date(b.data.date).getTime() : 0;
+    return dateB - dateA;
+  });
 
   return allPosts;
 }
