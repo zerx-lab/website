@@ -1,0 +1,68 @@
+name: Daily Tech News
+
+on:
+  schedule:
+    # 每天北京时间早上 7:00 执行 (UTC 23:00 前一天)
+    - cron: '0 23 * * *'
+  workflow_dispatch:
+    # 允许手动触发进行测试
+    inputs:
+      date:
+        description: '指定搜索日期 (YYYY-MM-DD)，留空则使用昨天'
+        required: false
+        type: string
+
+jobs:
+  generate-news:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Calculate date
+        id: date
+        run: |
+          if [ -n "${{ github.event.inputs.date }}" ]; then
+            echo "search_date=${{ github.event.inputs.date }}" >> $GITHUB_OUTPUT
+          else
+            # 获取昨天的日期
+            echo "search_date=$(date -u -d 'yesterday' '+%Y-%m-%d')" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Claude Code
+        id: claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+
+          prompt: |
+            执行 /daily-tech-news skill 来搜集 ${{ steps.date.outputs.search_date }} 的技术资讯。
+
+            请按照 skill 中定义的流程：
+            1. 使用 WebSearch 搜索 AI、GitHub、前端、后端、科技动态等领域的最新资讯
+            2. 为每条资讯生成中文摘要
+            3. 在 content/blog/ 目录创建 daily-tech-news-${{ steps.date.outputs.search_date }}.mdx 文件
+            4. 使用 git 提交更改
+
+            注意：
+            - 所有内容使用中文
+            - 确保包含来源链接
+            - 每个分类选择 3-5 条最重要的资讯
+
+          claude_args: |
+            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Bash(git add:*),Bash(git commit:*),Bash(git status),Bash(ls:*),Bash(cat:*)"
+            --max-turns 30
+
+      - name: Push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git push origin HEAD:${{ github.ref_name }}
