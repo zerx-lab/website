@@ -286,13 +286,9 @@ Kubernetes 1.33 原生支持 Sidecar
 ```mdx
 ---
 title: 每日技术资讯 - {TARGET_DATE 转换为中文格式}
-description: {当日资讯亮点摘要，50-100字，突出 Top 3}
+description: {当日资讯亮点摘要，50-100字，突出 Top 3。末尾添加"今日共收录N条经多源验证的重要技术资讯。"}
 date: {TARGET_DATE}
 ---
-
-# 每日技术资讯 - {TARGET_DATE 转换为中文格式}
-
-> 今日共收录 {N} 条资讯，经过多源验证和重要性评分筛选。
 
 ## 🔥 今日焦点
 

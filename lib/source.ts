@@ -53,17 +53,20 @@ ${processed}`;
 export async function getBlogPosts(): Promise<BlogPost[]> {
   // 获取 MDX 文章
   const mdxPages = blogSource.getPages();
-  const mdxPosts: BlogPost[] = mdxPages.map((page) => ({
-    id: page.slugs.join('/'),
-    slug: page.slugs[0],
-    url: page.url,
-    source: 'mdx',
-    data: {
-      title: page.data.title,
-      description: page.data.description,
-      date: (page.data as { date?: string }).date,
-    },
-  }));
+  const mdxPosts: BlogPost[] = mdxPages.map((page) => {
+    const pageDate = (page.data as { date?: Date }).date;
+    return {
+      id: page.slugs.join('/'),
+      slug: page.slugs[0],
+      url: page.url,
+      source: 'mdx',
+      data: {
+        title: page.data.title,
+        description: page.data.description,
+        date: pageDate?.toISOString(),
+      },
+    };
+  });
 
   // 获取 Wolai 文章
   let wolaiPosts: BlogPost[] = [];
