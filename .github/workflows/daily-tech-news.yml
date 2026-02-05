@@ -3,12 +3,12 @@ name: Daily Tech News
 on:
   schedule:
     # 每天北京时间早上 7:00 执行 (UTC 23:00 前一天)
-    - cron: '0 23 * * *'
+    - cron: "0 23 * * *"
   workflow_dispatch:
     # 允许手动触发进行测试
     inputs:
       date:
-        description: '指定搜索日期 (YYYY-MM-DD)，留空则使用昨天'
+        description: "指定搜索日期 (YYYY-MM-DD)，留空则使用昨天"
         required: false
         type: string
 
@@ -34,8 +34,10 @@ jobs:
           if [ -n "${{ github.event.inputs.date }}" ]; then
             echo "search_date=${{ github.event.inputs.date }}" >> $GITHUB_OUTPUT
           else
-            # 获取昨天的日期
-            echo "search_date=$(date -u -d 'yesterday' '+%Y-%m-%d')" >> $GITHUB_OUTPUT
+            # 获取北京时间（UTC+8）的昨天日期
+            # 当 UTC 23:00 执行时，北京时间是第二天 07:00
+            # 所以我们需要获取北京时间的"昨天"，即 UTC 时间的"今天"
+            echo "search_date=$(TZ='Asia/Shanghai' date -d 'yesterday' '+%Y-%m-%d')" >> $GITHUB_OUTPUT
           fi
 
       - name: Run Claude Code
