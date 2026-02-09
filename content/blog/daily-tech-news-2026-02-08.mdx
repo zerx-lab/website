@@ -48,7 +48,7 @@ Vouch 的设计哲学是：**信任必须被明确授予，而非默认存在**�
 
 核心概念：只有受信任的人（维护者、活跃贡献者）才能为新人"担保"。
 
-```td
+```text
 # .vouch/vouch.td
 vouch mitchellh  # 项目维护者
 vouch alice      # Alice 被担保
@@ -64,7 +64,7 @@ denounce eve     # Eve 被明确拒绝（恶意用户）
 
 项目可以引用其他项目的担保名单，形成生态级的信任网络：
 
-```td
+```text
 # 引用其他项目的担保名单
 use https://github.com/hashicorp/terraform/.vouch/vouch.td
 use https://github.com/ghostty-org/ghostty/.vouch/vouch.td

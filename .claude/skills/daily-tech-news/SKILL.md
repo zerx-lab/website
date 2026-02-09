@@ -369,7 +369,10 @@ date: {TARGET_DATE}
 □ 重要性评分标记完整
 □ 无重复内容
 □ 无明显事实错误
-□ 格式符合 MDX 规范
+□ MDX 安全检查（必须逐项确认）：
+  □ 正文中无裸露的 < 符号（代码块内除外），已用 &lt; 替代
+  □ 代码块语言标识符均为 Shiki 支持的语言（不确定则用 text）
+  □ 正文中无裸露的 {} 花括号（代码块内除外）
 □ 中文表达通顺
 ```
 
@@ -427,6 +430,64 @@ git commit -m "docs: add daily tech news for {date}"
 ❌ 无实质内容：AI 继续发展、技术在进步
 ❌ 标题与内容不符：标题说重大突破，内容只是小更新
 ```
+
+---
+
+## ⚠️ MDX 安全规则（必须严格遵守）
+
+MDX 不是普通 Markdown，它会将内容解析为 JSX。以下规则**必须**在生成内容时遵守，否则会导致 Vercel 构建失败：
+
+### 规则 1：转义裸露的 `<` 符号
+
+MDX 会把 `<` 解析为 JSX 标签开始。在非 HTML/JSX 上下文中的 `<` **必须**用 `&lt;` 替代。
+
+**常见触发场景和修复方式：**
+
+```
+❌ 影响版本 <1.123.17 的用户    → 报错：Unexpected character `1`
+✅ 影响版本 &lt;1.123.17 的用户
+
+❌ 当 x < 10 时               → 报错：Unexpected character `1`
+✅ 当 x &lt; 10 时
+
+❌ Array<string>              → 报错：解析为 JSX
+✅ `Array<string>`            → 用行内代码包裹
+✅ Array&lt;string&gt;         → 或用 HTML 实体
+```
+
+**注意：** 在代码块（` ``` `）内部的 `<` 不需要转义，代码块内是安全的。
+
+### 规则 2：代码块语言标识符必须是 Shiki 支持的语言
+
+代码块的语言标识符（` ```language `）必须使用 Shiki 已知的语言名称，否则构建时会报 `ShikiError: Language "xxx" is not included in this bundle`。
+
+**安全的语言标识符（常用）：**
+```
+text, plaintext, txt, bash, shell, sh, javascript, js, typescript, ts,
+python, py, json, yaml, yml, html, css, sql, go, rust, java, c, cpp,
+markdown, md, diff, toml, xml, graphql, docker, dockerfile, ini, csv
+```
+
+**不存在的/不安全的语言标识符：**
+```
+❌ ```td        → Shiki 无此语言，改用 ```text
+❌ ```nushell   → Shiki 无此语言，改用 ```shell 或 ```text
+❌ ```hcl       → 改用 ```text
+```
+
+**原则：如果不确定某个语言是否被 Shiki 支持，一律使用 `text`。**
+
+### 规则 3：花括号 `{}` 会被解析为 JSX 表达式
+
+MDX 中的 `{` 和 `}` 在正文中会被当作 JSX 表达式求值。
+
+```
+❌ 格式：{名称}    → 报错：名称 is not defined
+✅ 格式：\{名称\}  → 转义
+✅ 格式：`{名称}`  → 用行内代码包裹
+```
+
+**注意：** 在代码块内部的 `{}` 不需要转义。
 
 ---
 
