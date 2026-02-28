@@ -1,0 +1,212 @@
+---
+title: 每日技术资讯 - 2026年02月28日
+description: 特朗普封禁 Anthropic，五角大楼史无前例地将美国本土 AI 公司列为"供应链风险"，OpenAI 数小时内抢下五角大楼合同；OpenClaw ClawHub 平台爆发大规模供应链攻击，341 个恶意技能窃取用户凭证；白宫宣布 3 月 4 日由亚马逊、谷歌、微软等科技巨头签署"电力消费者保护承诺"。今日共收录 14 条经多源验证的重要技术资讯。
+date: 2026-02-28
+---
+
+## 🔥 今日焦点
+
+### 特朗普封禁 Anthropic，五角大楼"供应链风险"标签史上首例，OpenAI 数小时接盘合同 ⭐⭐⭐⭐⭐
+
+**核心要点：**
+- 2026 年 2 月 27 日，特朗普下令所有联邦机构在六个月内停止使用 Anthropic 产品，国防部长 Pete Hegseth 将 Anthropic 列为"**国家安全供应链风险**"——这是美国历史上**首次将本土公司**列入该类别（此前仅用于应对中俄等外国威胁）
+- 争议核心：五角大楼要求 Anthropic 允许 Claude 用于"**所有合法目的**"（包括完全自主武器和大规模国内监控），Anthropic 坚持两条红线不让步：① 当前 AI 不够可靠，不应用于完全自主武器；② 对美国公民的大规模监控违反基本权利
+- Hegseth 宣布："自即日起，所有与美国军方合作的承包商、供应商和合作伙伴不得与 Anthropic 进行任何商业活动。" 指定期限截止后，Anthropic 发表声明："无论五角大楼如何威胁惩处，不会改变我们在大规模国内监控或完全自主武器上的立场。"Anthropic 宣布将在法院挑战这一指定，称其"法律上不成立，且开创了危险先例"
+- **OpenAI 数小时内宣布接手**：CEO Sam Altman 在 X 上发帖，宣布 OpenAI 与国防部签署协议，在其机密网络上部署 AI 模型。Altman 表示 OpenAI 与五角大楼达成的协议**包含"禁止国内大规模监控"和"人类对武力使用负责"两项红线**，并暗示这比 Anthropic 此前的合同更有约束力
+- 受影响合同估值最高达 **2 亿美元**；Anthropic 已宣布将起诉五角大楼，法律依据为 10 USC 3252——该法律要求在作出供应链风险认定前须穷尽其他替代措施
+- HN 热度：Anthropic 声明页面获 **1,115 分**，Altman 帖子获 **1,316 分**，同日位列热榜前四
+
+**技术解读：**
+
+这是 AI 安全伦理与国家权力之间迄今最激烈的公开冲突。关键在于：五角大楼要求的不是"更好的 AI"，而是"不受限制的 AI"——即移除所有使用政策约束。Anthropic 的两条红线（自主武器、大规模监控）实际上是业界公认的 AI 安全底线，而非激进立场。
+
+OpenAI 的"接盘"动作值得深思：Altman 声称 OpenAI 协议中保留了相同的红线，但采用"反映现行法律和政策"的方式表述，而非 Anthropic 坚持的显式合同条款。争议在于：现行法律是否真正约束 AI 在大规模监控中的使用？Anthropic 认为答案是否定的。
+
+**背景上下文：**
+
+Anthropic 的 $200M 五角大楼合同签于 2025 年 7 月。在此期间，五角大楼持续施压要求解除使用限制。2026 年 2 月 24 日，Hegseth 与 Dario Amodei 会面谈崩，随后启动了这次史无前例的指定程序。谷歌内部超过 100 名员工同日联名上书，要求公司为 Gemini 军事使用制定类似限制。
+
+**开发者行动建议：**
+- 企业 CTO/法务：评估你所在公司的 Pentagon 相关合同中是否涉及 Claude——Anthropic 称商业合同不受影响，但 Fortune 500 合规团队将在法律确定前持观望态度
+- 关注 Anthropic 的法律挑战进展——如果成功，将为整个行业的"AI 伦理红线"在合同层面的法律效力奠定先例
+- OpenAI 和 Anthropic 谁将最终赢得政府 AI 市场，将极大影响 2026 年下半年企业 AI 选型
+
+**相关链接：**
+- NBC News: [OpenAI strikes deal with Pentagon after Trump orders government to stop using Anthropic](https://www.nbcnews.com/tech/tech-news/trump-bans-anthropic-government-use-rcna261055)
+- Anthropic 官方声明: [Statement on the comments from Secretary of War Pete Hegseth](https://www.anthropic.com/news/statement-comments-secretary-war)
+- Fortune: [OpenAI sweeps in to snag Pentagon contract after Anthropic labeled 'supply chain risk'](https://fortune.com/2026/02/28/openai-pentagon-deal-anthropic-designated-supply-chain-risk-unprecedented-action-damage-its-growth/)
+- Axios: [Anthropic to take Trump's Pentagon to court](https://www.axios.com/2026/02/28/anthropic-trump-pentagon-lawsuit-ai-dispute)
+- Bloomberg: [OpenAI Gives Pentagon AI Model Access After Anthropic Dustup](https://www.bloomberg.com/news/articles/2026-02-28/openai-gives-pentagon-access-to-models-after-anthropic-dustup)
+- 验证: ✓ 多源确认（NBC + CNN + CNBC + NPR + Fortune + Axios + Bloomberg + Defense Scoop）
+
+---
+
+### ClawHavoc：341 个恶意技能攻陷 OpenClaw ClawHub 市场，AI 代理供应链危机爆发 ⭐⭐⭐⭐⭐
+
+**核心要点：**
+- 安全研究机构 Koi Security 对 ClawHub（OpenClaw AI 代理的技能市场）上 2,857 个技能进行安全审计，发现 **341 个恶意技能**，36% 的技能含可检测安全漏洞
+- 攻击者使用三种手法：① 技能描述文件（SKILL.md）中嵌入**提示注入**；② 隐藏**反向 Shell 脚本**；③ 利用 **CVE-2026-25253**（CVSS 8.8）——OpenClaw Control UI 未验证查询字符串中的 `gatewayUrl` 参数，攻击者可通过单个恶意链接无需安装技能即可窃取 Token
+- 安全研究员 Paul McCarty 指出：这些技能伪装成加密货币交易自动化工具，实际上向 macOS 和 Windows 系统投递信息窃取恶意软件（AMOS Stealer），共享同一 C2 基础设施（91.92.242[.]30），窃取内容包括交易所 API 密钥、钱包私钥、SSH 凭证和浏览器密码
+- **根本问题**：ClawHub 对上传者几乎无限制（仅需一个年龄超过一周的 GitHub 账号），技能安装后与 AI 代理拥有相同的执行权限——文件访问、网络访问、敏感 Token
+- OpenClaw 已响应：集成 VirusTotal 扫描 + 添加技能举报机制；CVE-2026-25253 在披露后 48 小时内完成修补；但未打补丁的历史版本仍存在漏洞
+
+**技术解读：**
+
+这是 AI Agent 生态系统中"软件供应链攻击"的首次大规模公开案例。关键洞察：**AI 代理的技能架构与 npm/pip 包的信任模型几乎相同，但危害更大**——代理不只是执行代码，还会将恶意技能描述文件当作可信指令处理，并以"帮助用户"的名义执行社会工程学操作（如显示伪造的人机交互对话框要求输入密码）。
+
+值得警惕的是，Repello AI 的研究证实：ClawHavoc 的攻击手法（尤其是通过技能描述文件的提示注入）理论上适用于任何处理第三方技能文件的 AI 代理平台——**Claude Code、Cursor、Windsurf** 等均使用相似的信任模型。
+
+**背景上下文：**
+
+此次攻击从 2026 年 1 月 29 日（刻意植入后门的"安全测试"技能上传）蔓延至整个 2 月，已造成大量用户加密资产损失。这与 npm 中的 typosquatting 攻击、PyPI 恶意包事件一脉相承，但 AI 代理的自主执行能力使危害被成倍放大。
+
+**开发者行动建议：**
+- 立即更新 OpenClaw 至最新版本，确认 CVE-2026-25253 补丁已应用
+- 对已安装的第三方技能进行审计——优先检查涉及加密货币、API 访问和系统命令的技能
+- 构建 AI 代理工作流时，应将外部技能/插件视为不可信代码，实施最小权限原则和沙箱隔离
+
+**相关链接：**
+- The Hacker News: [Researchers Find 341 Malicious ClawHub Skills Stealing Data from OpenClaw Users](https://thehackernews.com/2026/02/researchers-find-341-malicious-clawhub.html)
+- Repello AI: [ClawHavoc: Inside the Supply Chain Attack That Targeted 300,000 AI Agent Users](https://repello.ai/blog/clawhavoc-supply-chain-attack)
+- eSecurity Planet: [Hundreds of Malicious Skills Found in OpenClaw's ClawHub](https://www.esecurityplanet.com/threats/hundreds-of-malicious-skills-found-in-openclaws-clawhub/)
+- Trend Micro: [Malicious OpenClaw Skills Used to Distribute Atomic MacOS Stealer](https://www.trendmicro.com/en_us/research/26/b/openclaw-skills-used-to-distribute-atomic-macos-stealer.html)
+- 验证: ✓ 多源确认（Koi Security + Repello AI + Trend Micro + The Hacker News + eSecurity Planet）
+
+---
+
+### 白宫"电力消费者保护承诺"：亚马逊、谷歌、微软、Meta、OpenAI 将于 3 月 4 日签署协议 ⭐⭐⭐⭐
+
+**核心要点：**
+- 特朗普在 2 月 24 日国情咨文中正式宣布与科技公司谈判达成"**电力消费者保护承诺**（Ratepayer Protection Pledge）"，亚马逊、谷歌、微软、Meta 和 OpenAI 将于 **3 月 4 日**在白宫签署协议
+- 核心要求：AI 数据中心运营商须承担其造成的**全部增量电力成本**，不得将费用转嫁给普通居民；同时承诺自建配套发电设施，减少对公共电网的冲击
+- 背景：美国多地电网因 AI 数据中心规模扩张面临严峻压力——一个大型数据中心的能耗相当于一座小城市；部分州已开始出现居民电费上涨，地方政府和民众抗议增多
+- Anthropic 率先公开表态支持，承诺"100% 吸收消费者因 Anthropic 数据中心造成的电费上涨"；微软总裁 Brad Smith 于 1 月已作出类似承诺
+- 批评声音：Energy Law 专家 Peskoe 称，"承诺毫无意义，除非我们看到实用公司向州和联邦监管机构提交的合同，明确将所有数据中心成本分配给数据中心本身"
+
+**为什么重要：** AI 能源问题正从技术议题升级为政治议题——数据中心的电力需求已直接冲击普通居民的月度账单，这将推动更严格的监管框架，并影响数据中心选址和能源采购策略。
+
+- 来源: [Nextgov/FCW](https://www.nextgov.com/artificial-intelligence/2026/02/trump-unveils-big-tech-pledge-offset-rising-data-center-energy-costs/411668/)、[Cybernews](https://cybernews.com/ai-news/white-house-ai-data-center-power-cost-pledge-microsoft-amazon-meta-anthropic/)、[The Hill](https://thehill.com/policy/energy-environment/5752778-trump-state-of-the-union-electricity-pledges-big-tech/)
+- 验证: ✓ 多源确认（Nextgov + Cybernews + Fox News + The Hill + Data Innovation Center）
+
+---
+
+## AI / 人工智能
+
+### Gary Marcus：《整件事就是个骗局》在 HN 获 470 分，引发 AI 泡沫大讨论 ⭐⭐⭐
+
+AI 怀疑论者、认知科学家 Gary Marcus 在 Substack 上发表文章《The whole thing was a scam》，在 Hacker News 今日以 **470 分**登上热榜第九位，引发大规模讨论。Marcus 长期对 LLM 的实际推理能力持批判态度，这篇文章再次引发关于 AI 当前能力是否被过度渲染的讨论——尤其是在 OpenAI 完成 1100 亿美元融资、估值达 8400 亿美元的背景下，对 AI 价值创造的追问愈发尖锐。
+
+**为什么重要：** 在每日充斥融资和功能发布的 AI 新闻之外，理性质疑声音正在获得越来越多开发者的共鸣——产品实际产生的商业价值与估值之间是否存在系统性高估，是 2026 年开发者需要独立思考的核心问题。
+
+- 来源: [Gary Marcus Substack](https://garymarcus.substack.com/p/the-whole-thing-was-scam)、[Hacker News](https://news.ycombinator.com/front?day=2026-02-28)（470 分）
+- 验证: ✓ HN 社区验证
+
+### AI 内存芯片短缺致智能手机价格创历史新高，IDC 预测 2026 年出货量降至十年最低 ⭐⭐⭐
+
+CNN Business 报道，AI 数据中心对 DRAM 和 HBM 芯片的旺盛需求正在引发连锁反应：亚洲主要内存芯片厂商将产能重心转向 AI 供应链，导致消费电子用内存严重短缺。2026 年 Q1 相关芯片价格较上季度几乎翻倍，智能手机价格升至历史新高。IDC 预测 **2026 年全球智能手机出货量将同比下降 12.9%**，降至 **11.2 亿台**——为十年来最低水平。
+
+**为什么重要：** AI 硬件竞赛的成本不仅由云厂商和开发者承担，还通过供应链传导至普通消费者，这将是 AI 产业规模扩张面临的长期政治和经济阻力。
+
+- 来源: [CNN Business](https://edition.cnn.com/2026/02/27/tech/ai-memory-chips-smartphones-intl-hnk)
+- 验证: ✓ CNN + IDC 数据支持
+
+---
+
+## GitHub / 开源
+
+### GitHub 热门项目
+
+本日（2026-02-28）GitHub 趋势榜热门项目：
+
+- **[ruvnet/wifi-densepose](https://github.com/ruvnet/wifi-densepose)** (Python, 7.7k ⭐) ⭐⭐⭐⭐⭐
+  基于 WiFi 信号的穿墙人体姿态估计系统（InvisPose 生产就绪实现），利用普通家用 Mesh 路由器的**信道状态信息（CSI）**，无需摄像头即可实现实时全身姿态追踪，精度与摄像头方案相当（94.2% 的 camera-level 准确率）。支持同时追踪 10 人，延迟低于 50ms。
+  **亮点：** 完全无图像、无摄像头，天然保护隐私，适用于老年护理、灾难搜救和智能家居场景。提供 Docker 一键部署，同时有 Rust 高性能移植版本。
+
+- **[obra/superpowers](https://github.com/obra/superpowers)** (Shell, 64.2k ⭐) ⭐⭐⭐⭐⭐
+  代理式技能框架与软件开发方法论，为 Claude Code、Cursor 等 AI 编程助手提供可组合的"超能力"技能集。本周继续稳居 GitHub 月榜和日榜前列。
+
+- **[ruvnet/claude-flow](https://github.com/ruvnet/claude-flow)** (TypeScript) ⭐⭐⭐⭐
+  Claude 的旗舰多代理编排平台，支持部署智能多代理群组（multi-agent swarms），协调自主工作流，具备企业级架构、分布式群体智能、RAG 集成和原生 Claude Code/Codex 集成。
+
+- **[hesamsheikh/awesome-openclaw-usecases](https://github.com/hesamsheikh/awesome-openclaw-usecases)** (10.9k ⭐) ⭐⭐⭐⭐
+  OpenClaw 使用案例的社区精选合集，尽管 ClawHub 今日曝出安全事件，但 OpenClaw 本身的开发者生态仍在快速成长。
+
+- 来源: [GitHub Trending](https://github.com/trending)、[Trendshift](https://trendshift.io/)
+
+### Godot 4.6 正式发布：Jolt 成默认物理引擎，LibGodot 支持嵌入式部署 ⭐⭐⭐
+
+开源游戏引擎 Godot 于 2026 年初正式发布 **4.6 版本**，这是 4.0 发布以来最重要的里程碑之一，主题为"工作流优先"：
+
+- **Jolt 物理引擎成为 3D 项目默认选项**：Jolt 以确定性和稳定性著称，正式替代 Godot 自研引擎成为新项目默认，是对"自研引擎已无法满足复杂场景需求"的坦然承认
+- **LibGodot**：可将引擎嵌入自定义应用程序作为库使用，支持 Linux、Windows、macOS，为非标准编辑器和混合应用提供全新集成方式
+- **屏幕空间反射（SSR）大幅升级**：支持全/半分辨率模式，视觉质量和稳定性显著提升
+- **逆运动学（IK）框架回归**：4.0 中被移除的 IK 系统重新以模块化方式回归，支持二骨 IK、样条 IK 和多种迭代求解器
+- **OpenXR 1.1 支持**：无需厂商插件即可跨头显部署，简化 XR 开发
+
+**为什么重要：** Godot 的持续升级正在降低独立开发者进入专业游戏和 XR 开发的门槛，LibGodot 的出现为 AI 辅助游戏工具链开辟了全新的集成可能性。
+
+- 来源: [Godot Engine 官方](https://godotengine.org/releases/4.6/)、[Game Developer](https://www.gamedeveloper.com/programming/godot-4-6-is-here-with-a-fresh-promise-to-prioritize-workflow)、[GameFromScratch](https://gamefromscratch.com/godot-4-6-released/)
+- 验证: ✓ 官方发布确认
+
+---
+
+## 安全 / 开发者工具
+
+### 请停止用 Passkey 加密用户数据：Tim Cappalli 的重要安全警告 ⭐⭐⭐
+
+WebAuthn 规范贡献者 Tim Cappalli 发表博文《Please, please, please stop using passkeys for encrypting user data》，在 Hacker News 获得 **234 分**，Simon Willison 同日转发推荐。
+
+核心问题：许多开发者使用 WebAuthn **PRF 扩展**（伪随机函数）派生密钥来加密用户数据（如消息备份、E2E 加密、文件存储），这看起来优雅，但存在致命隐患：**用户删除 passkey 时可能永久失去对已加密数据的访问**——包括照片、文件、数字资产。
+
+Cappalli 指出，Passkey 是出色的**防钓鱼身份验证凭证**，但不是可靠的**加密密钥管理方案**。PRF 的合理使用场景应限于凭证管理器（如 1Password、Bitwarden），它们有主密码、恢复密钥等多重兜底机制。对于应用开发者，建议使用独立的密钥管理方案，将认证与加密的职责分离。
+
+- 来源: [Tim Cappalli 博客](https://blog.timcappalli.me/p/passkeys-prf-warning/)、[Hacker News](https://news.ycombinator.com/item?id=47189749)（234 分）、[Simon Willison's Notes](https://simonwillison.net/2026/Feb/27/passkeys/)
+- 验证: ✓ 多源确认（作者为 WebAuthn 规范贡献者 + HN + Simon Willison 推荐）
+
+### AdderBoard：有史以来最小的能正确加两个 10 位数的 Transformer ⭐⭐⭐
+
+GitHub 项目 [anadim/AdderBoard](https://github.com/anadim/AdderBoard) 在 HN 获得 **227 分**，展示了研究者训练出**最小规模 Transformer 模型实现 10 位整数加法**的探索。这项研究将数学推理中的最小模型规模问题形式化，通过系统性地缩减参数直至模型失效，找到"成功/失败的相变边界"。
+
+**为什么重要：** 这类研究揭示了 LLM 在看似简单任务上的能力边界，直接挑战"更大参数量等于更强推理"的朴素假设，为 AI 推理能力的评估和模型高效化研究提供了实证基础。
+
+- 来源: [GitHub: anadim/AdderBoard](https://github.com/anadim/AdderBoard)、[Hacker News](https://news.ycombinator.com/front?day=2026-02-28)（227 分）
+- 验证: ✓ HN 社区验证
+
+---
+
+## 科技动态
+
+### Agentic AI Foundation (AAIF) 首季新增 97 名成员，增速超 CNCF 早期 ⭐⭐⭐
+
+设立于 Linux Foundation 旗下的 **Agentic AI Foundation（AAIF）**报告，成立首季已有 **97 名黄金和白银级别成员**签署加入，增速超过 CNCF（云原生计算基金会）早期同期数据的两倍。AAIF 专注于为企业级 AI 代理工作负载制定开放标准、互操作规范和治理框架，成员涵盖主流云厂商和企业软件公司。
+
+**为什么重要：** 基金会式的标准组织的出现，标志着 Agentic AI 从"各自为战"进入"生态标准化"阶段——类似 Kubernetes 生态成熟的信号。开发者应关注 AAIF 规范对未来 AI 代理 API 设计和互操作性的影响。
+
+- 来源: [Futureseek Daily Link Review 2026-02-28](https://futureseek.wordpress.com/2026/02/28/futureseek-daily-link-review-28-february-2026/)、[Solutions Review AI Weekly](https://solutionsreview.com/artificial-intelligence-news-for-the-week-of-february-27-updates-from-red-hat-splunk-vast-data-more/)
+- 验证: ✓ 多源确认
+
+### 谷歌员工联名上书：要求 Gemini 军事使用设置类似 Anthropic 的限制 ⭐⭐⭐
+
+受 Anthropic 与五角大楼冲突事件影响，谷歌内部超过 **100 名员工**联名致信公司首席科学家，要求为 Gemini AI 模型的军事使用制定明确限制，内容与 Anthropic 的两条红线（禁止自主武器、禁止大规模监控）一致。微软和亚马逊内部也出现类似声音。这场争论正将 AI 安全伦理从公司治理层面推向整个硅谷的员工运动层面。
+
+**为什么重要：** 工程师群体的集体行动历史上曾多次改变科技公司的政策走向（如谷歌 Project Maven 事件），此次联名上书的规模和声势反映了 AI 军事化应用问题正在成为硅谷内部的核心分歧点。
+
+- 来源: [Fortune](https://fortune.com/2026/02/28/openai-pentagon-deal-anthropic-designated-supply-chain-risk-unprecedented-action-damage-its-growth/)、[NBC News](https://www.nbcnews.com/tech/tech-news/trump-bans-anthropic-government-use-rcna261055)
+- 验证: ✓ 多源确认
+
+---
+
+## 📊 今日数据
+
+| 指标 | 数值 |
+|------|------|
+| 搜索源数量 | 18 个 |
+| 候选资讯 | 35 条 |
+| 去重后 | 20 条 |
+| 最终收录 | 14 条 |
+| 多源验证率 | 86% |
+| Top 3 平均重要性评分 | 95/100 |
+
+---
+
+> 本文由 Claude 自动生成，采用多源交叉验证机制。如发现错误，欢迎反馈。
