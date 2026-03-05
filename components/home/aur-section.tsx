@@ -32,9 +32,17 @@ export async function AurSection() {
             </div>
 
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold font-mono tracking-tighter">
-              <span className="text-cyan-600 dark:text-cyan-400">
-                AUR_PACKAGES
-              </span>
+              <a
+                href="#aur"
+                className="group/anchor inline-flex items-center gap-3 hover:opacity-80 transition-opacity"
+              >
+                <span className="text-cyan-600 dark:text-cyan-400">
+                  AUR_PACKAGES
+                </span>
+                <span className="opacity-0 group-hover/anchor:opacity-40 transition-opacity text-cyan-500 dark:text-cyan-400 text-3xl sm:text-4xl lg:text-5xl">
+                  #
+                </span>
+              </a>
             </h2>
 
             <p className="mt-4 text-gray-600 dark:text-gray-400 text-base max-w-xl leading-relaxed font-light">

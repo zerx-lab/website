@@ -1,4 +1,5 @@
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
+import type { MenuItemType } from "@fumadocs/ui/link-item";
 
 function ZLogo() {
   return (
@@ -43,6 +44,22 @@ export function baseOptions(): BaseLayoutProps {
       ),
     },
     links: [
+      {
+        type: "menu",
+        text: "项目",
+        items: [
+          {
+            text: "代码仓库",
+            description: "维护的开源代码仓库",
+            url: "/#projects",
+          },
+          {
+            text: "AUR 软件包",
+            description: "为 Arch Linux 维护的 AUR 包",
+            url: "/#aur",
+          },
+        ],
+      } satisfies MenuItemType,
       {
         text: "博客",
         url: "/blog",
