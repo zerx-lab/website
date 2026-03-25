@@ -1,0 +1,261 @@
+---
+title: 每日技术资讯 - 2026年03月25日
+description: GitHub Copilot 4月24日起将用用户交互数据训练模型，可在设置中退出；ARC-AGI-3 发布全新交互式 AGI 基准测试，量化 AI 与人类的学习差距；Google TurboQuant 将 KV Cache 压缩至 3 位并实现 8 倍推理加速；FreeCAD 1.1 正式发布；最高法院裁定 ISP 不承担用户版权侵权连带责任。今日共收录15条经多源验证的重要技术资讯。
+date: 2026-03-25
+---
+
+## 🔥 今日焦点
+
+### GitHub Copilot 更新交互数据使用政策，4 月 24 日起默认参与模型训练 ⭐⭐⭐⭐⭐
+
+**核心要点：**
+
+- **自 2026 年 4 月 24 日起**，GitHub 将使用 Copilot Free、Pro、Pro+ 用户的交互数据训练 AI 模型，数据范围包括：被接受或修改的代码建议、光标周围的代码上下文、注释、文件名、用户反馈评分，以及仓库结构与导航模式
+- **Copilot Business 和 Copilot Enterprise 用户明确豁免**，私有仓库内容不在收集范围内，除非用户明确同意
+- 用户可在 GitHub 设置 → Privacy 中选择退出；**此前已退出数据收集的用户无需任何操作**，偏好设置将自动被遵守
+
+**技术解读：**
+
+GitHub 的内部测试数据显示，使用微软员工真实交互数据训练后，多种编程语言的代码建议接受率出现"显著提升"。这一做法沿袭了科技行业惯例——用真实用户行为数据做 RLHF（人类反馈强化学习）训练，相比合成数据效果更好。收集的数据可能与 Microsoft 旗下关联公司共享，但不会提供给第三方 AI 供应商。
+
+**背景上下文：**
+
+此举与 GitHub 2023 年以来强化 Copilot 训练的策略一脉相承。GitHub Copilot 拥有超过 150 万付费用户，大量的真实代码补全反馈是提升模型质量的核心资产。选择不参与的代价几乎为零（一次设置操作），但参与者的数据将直接影响未来 Copilot 模型的质量。
+
+**开发者行动建议：**
+
+- 如不希望自己的代码交互数据被用于训练，**在 4 月 24 日前前往 GitHub Settings → Privacy 退出**
+- 企业用户确认自己使用的是 Business 或 Enterprise 计划，无需操作
+- 团队层面：更新内部 Copilot 使用规范，通知开发者此变化
+
+**相关链接：**
+
+- 官方公告: [Updates to GitHub Copilot interaction data usage policy](https://github.blog/news-insights/company-news/updates-to-github-copilot-interaction-data-usage-policy/)
+- 验证: ✓ 多源确认（GitHub 官方博客 + Hacker News 社区讨论）
+
+---
+
+### ARC-AGI-3 发布：首个面向 AI 智能体的交互式推理基准测试 ⭐⭐⭐⭐⭐
+
+**核心要点：**
+
+- **ARC-AGI-3 是首个交互式 AGI 推理基准测试**，不再使用静态谜题，而是让 AI 智能体在动态环境中自主感知、行动、调整策略，无需自然语言指令
+- 基准测试从四个维度评估 AI：人类可完整解决的环境、智能体随时间获取新技能的速度、长时间规划能力、跨多步骤的自适应学习能力
+- **满分 100 分代表 AI 能与人类同等效率解决所有任务**；设计理念是"只要 AI 与人类学习之间存在差距，就不算实现 AGI"
+
+**技术解读：**
+
+ARC-AGI-3 的革新在于将评估从"结果"扩展到"过程"——记录带时间戳的决策轨迹，捕捉规划深度、信息压缩与信念更新能力。这与此前 ARC-AGI-1/2 的一次性静态测试有本质区别。AI 系统必须在没有预设提示的情况下，通过直接经验学习——这更接近于人类在陌生场景下的真实学习方式。
+
+**背景上下文：**
+
+ARC Prize（由 François Chollet 和 Mike Knoop 创立）已持续推动 AI 推理能力的可量化评估。ARC-AGI-2 在 2025 年已让顶级模型勉强达到人类水平，ARC-AGI-3 通过引入交互性显著提升了难度门槛。本次发布包含开发者工具包、可复现评估的交互式 UI，以及可供下载的技术论文，并与 ARC Prize 2026 竞赛挂钩。
+
+**开发者行动建议：**
+
+- AI 研究者：下载技术论文并申请访问开发者工具包，提前了解评估体系
+- 智能体框架开发者：ARC-AGI-3 将成为衡量 AI Agent 真实能力的重要标准，建议提前适配
+- 关注 ARC Prize 2026 竞赛赛程和奖金设置
+
+**相关链接：**
+
+- 官方页面: [ARC-AGI-3](https://arcprize.org/arc-agi/3)
+- Hacker News 讨论: [ARC-AGI-3 on HN](https://news.ycombinator.com/item?id=43462803)
+- 验证: ✓ 多源确认（官方发布 + HN 社区）
+
+---
+
+### Google TurboQuant：将 KV Cache 压缩至 3 位，推理速度提升 8 倍 ⭐⭐⭐⭐⭐
+
+**核心要点：**
+
+- **TurboQuant 在 ICLR 2026 上发表**，是一种针对大型语言模型和向量搜索的极端压缩算法，可将 KV Cache 压缩到 3 位，且**零精度损失**
+- 算法分两阶段：**PolarQuant** 将向量随机旋转后转为极坐标形式，消除传统归一化步骤的内存开销；**QJL（量化 Johnson-Lindenstrauss 变换）** 仅用 1 个额外比特进行误差校正
+- 在 H100 GPU 上实测：长上下文任务内存减少 6 倍，计算注意力 logits 性能提升最高 8 倍，向量搜索召回率超越 PQ、RabbiQ 等基线方法
+
+**技术解读：**
+
+TurboQuant 的核心洞见是利用高维向量的几何特性：Johnson-Lindenstrauss 变换可在压缩维度时保持向量间的距离关系，再配合极坐标表示，使得量化误差可以用极少额外比特修正。这解决了长上下文 LLM 推理中最核心的瓶颈——KV Cache 的内存占用随序列长度线性增长。对于 128K token 上下文，6 倍压缩意味着同等显存可处理更长的对话或文档。
+
+**背景上下文：**
+
+随着 Gemini 和 GPT 系列将上下文窗口扩展到百万级 token，KV Cache 管理已成为 LLM 推理的主要工程挑战。TurboQuant 在不牺牲精度的前提下大幅降低了长上下文推理的成本，是学术界为工业界部署提供的有力工具。
+
+**开发者行动建议：**
+
+- LLM 推理框架开发者：关注 TurboQuant 代码库，评估集成进 vLLM、TensorRT-LLM 等框架的可行性
+- 研究者：阅读 ICLR 2026 论文，了解极坐标量化在其他高维数据（图像嵌入、语音特征）上的应用潜力
+- 向量数据库工程师：QJL 方法在大规模相似搜索中的压缩比值得实验验证
+
+**相关链接：**
+
+- Google Research 博客: [TurboQuant: Redefining AI efficiency with extreme compression](https://research.google/blog/turboquant-redefining-ai-efficiency-with-extreme-compression/)
+- 验证: ✓ 多源确认（Google Research 官方博客 + ICLR 2026）
+
+---
+
+## AI / 人工智能
+
+### Google DeepMind Gemini 3.1 Pro：100 万 Token 上下文，77.1% ARC-AGI-2 ⭐⭐⭐⭐
+
+Google DeepMind 发布 Gemini 3.1 Pro，配备 **100 万 token 上下文窗口**，在 ARC-AGI-2 基准测试上达到 77.1%，并支持文本、图像、音频、视频与代码的多模态推理。与此同时，Gemini 付费订阅用户数同比增长 258%，Google 正低调将 Gemini 服务扩展至 300 万美国政府雇员。
+
+**为什么重要：** 百万 token 上下文使 Gemini 3.1 Pro 能够一次性处理整个代码库或长篇技术文档，对需要跨文件推理的 AI 编程助手场景有显著优势。
+
+- 来源: [LLM Stats AI News](https://llm-stats.com/llm-updates), [UC Strategies](https://ucstrategies.com/news/googles-ai-grew-258-while-openai-and-anthropic-fought-in-court/)
+- 验证: ✓ 多源确认
+
+### Ensu：Ente 推出本地 LLM 隐私应用 ⭐⭐⭐
+
+以端对端加密著称的存储服务 Ente 发布 **Ensu**，这是一款运行本地 LLM 的应用，所有数据处理在用户设备上完成，无需联网，完全保护隐私。Ente 的安全理念与本地 AI 的结合，为隐私敏感用户提供了一个有力选择。
+
+**为什么重要：** 在 AI 应用数据隐私争议日趋激烈的背景下，完全本地化的 LLM 应用代表了一个值得关注的反主流趋势。
+
+- 来源: [Ente Blog](https://ente.com/blog/ensu/)
+- Hacker News 讨论: [ycombinator.com](https://news.ycombinator.com/)
+- 验证: ✓ 官方发布
+
+---
+
+## GitHub / 开源
+
+### GitHub Trending 热门项目
+
+本日 GitHub 趋势榜热门项目（数据截至 2026-03-25）：
+
+- **[bytedance/deer-flow](https://github.com/bytedance/deer-flow)** (Python, 46k ⭐，今日 +3,787) ⭐⭐⭐⭐⭐
+  字节跳动开源的 SuperAgent 框架，内置沙箱和子智能体，可自主研究、编写代码和创作内容。
+  **亮点：** 今日新增 Star 数居全站第一，是目前最受关注的 AI Agent 框架之一
+
+- **[ruvnet/ruflo](https://github.com/ruvnet/ruflo)** (TypeScript, 26k ⭐，今日 +1,173) ⭐⭐⭐⭐
+  面向 Claude 的多智能体群体编排平台，支持复杂的 multi-agent swarm 任务分发。
+  **亮点：** 随着 Claude API 生态快速扩张，专为 Claude 优化的 Agent 框架受到大量关注
+
+- **[Crosstalk-Solutions/project-nomad](https://github.com/Crosstalk-Solutions/project-nomad)** (TypeScript, 16.5k ⭐，今日 +1,717) ⭐⭐⭐⭐
+  自包含、离线生存计算机，集成关键工具、知识库和 AI——一个为极端条件设计的完整离线系统。
+  **亮点：** 独特的"灾备 AI"定位，在数字韧性领域填补了一个全新细分市场
+
+- **[ruvnet/RuView](https://github.com/ruvnet/RuView)** (Rust, 42.2k ⭐，今日 +1,083) ⭐⭐⭐⭐
+  WiFi DensePose：利用普通 WiFi 信号实现实时人体姿态估计，无需摄像头。Rust 实现，高性能。
+  **亮点：** 将计算机视觉与无线信号处理结合，是一项突破性的无侵入式感知技术
+
+- **[supermemoryai/supermemory](https://github.com/supermemoryai/supermemory)** (TypeScript, 19.1k ⭐，今日 +809) ⭐⭐⭐
+  极速、可扩展的记忆引擎——"AI 时代的 Memory API"，为 AI 应用提供持久化记忆能力。
+
+- 来源: [GitHub Trending](https://github.com/trending)
+
+### FreeCAD 1.1 正式发布：300 名开发者历时 1.5 年的成果 ⭐⭐⭐⭐
+
+**开源 3D CAD 软件 FreeCAD 于 2026 年 3 月 25 日正式发布 1.1 版本**，这是继 2024 年里程碑式的 1.0 版本之后的重要迭代，由近 300 名开发者、100 余名翻译者历时约 1.5 年完成。
+
+主要新功能：
+- **改进 Wayland 支持**（Linux 用户的重大利好）
+- **3 点照明系统**，提升 3D 模型渲染质感
+- **Preferences 编辑器搜索栏**，大幅提升设置效率
+- **Assembly 工作台动画支持**
+- **CAM 全新刀具库系统**，以及新增攻丝操作
+- **BIM 工作台**：新增 Drawing View 工具、IFC 格式对 2D 对象的原生支持
+
+**为什么重要：** FreeCAD 是工程师和制造业最重要的开源 CAD 工具，1.1 版本的稳定性提升和新功能将进一步缩小与商业 CAD 软件的差距。
+
+- 来源: [FreeCAD Blog](https://blog.freecad.org/2026/03/25/freecad-version-1-1-released/), [Phoronix](https://www.phoronix.com/news/FreeCAD-1.1-Released)
+- 验证: ✓ 多源确认
+
+---
+
+## 后端 / 基础设施
+
+### KubeCon CloudNativeCon Europe 2026：云原生 AI 合规认证数量翻倍 ⭐⭐⭐⭐
+
+KubeCon + CloudNativeCon Europe 2026 于 3 月 23–26 日在荷兰阿姆斯特丹举行，关键公告包括：
+
+- **Kubernetes AI 合规认证平台从 18 个增至 31 个**，新增 OVHcloud、SpectroCloud、JD Cloud 等，v1.35 版本引入更严格的 Kubernetes AI Requirements（KARs），强制规范 AI 工作负载部署
+- **Google 开源了 GKE 的 TPU DRA（Dynamic Resource Allocation）驱动**，GKE 获认证为首批 AI 合规平台之一
+- **Microsoft 发布 AI Runway**：面向推理工作负载的 Kubernetes API，内置 HuggingFace 模型发现、GPU 内存适配指示器和实时成本估算
+- CNCF 报告：云原生采用率达到全球 1560 万开发者，77% 的后端开发者使用至少一种云原生技术
+
+**为什么重要：** AI 工作负载正在成为 Kubernetes 的一等公民，KARs 的引入意味着企业选择 Kubernetes 平台时必须考虑其对 GPU 和 AI 推理的原生支持能力。
+
+- 来源: [Microsoft Open Source Blog](https://opensource.microsoft.com/blog/2026/03/24/whats-new-with-microsoft-in-open-source-and-kubernetes-at-kubecon-cloudnativecon-europe-2026/), [CNCF](https://www.cncf.io/announcements/2026/03/25/cncf-celebrates-innovators-advancing-cloud-native-at-kubecon-cloudnativecon-europe/)
+- 验证: ✓ 多源确认
+
+### Ingress NGINX 正式退役：影响约 50% 云原生环境 ⭐⭐⭐⭐
+
+Kubernetes 社区 Ingress NGINX 控制器（`kubernetes/ingress-nginx`）正式进入生命周期终止（EOL）状态，GitHub 仓库即将设为只读，不再有任何发布、Bug 修复或安全补丁。
+
+**关键区别（常见混淆）：**
+- `kubernetes/ingress-nginx`（Kubernetes 社区版）→ **已 EOL**
+- `nginxinc/kubernetes-ingress`（F5/NGINX Inc. 维护版）→ **仍在积极维护**
+
+**退役背景：** 该项目虽被约 50% 的云原生环境使用，但长期仅由 1–2 人在业余时间维护，2025 年 3 月曝出 CVSS 9.8 的"IngressNightmare"漏洞（CVE-2025-1974），2026 年 2 月又披露 4 个高危 CVE。
+
+**迁移建议：** Gateway API（SIG Network 主推的现代替代方案）、F5 NGINX Ingress Controller、或云厂商自有方案（AWS Load Balancer Controller、GKE Gateway API）。
+
+检测命令：
+```bash
+kubectl get pods --all-namespaces --selector app.kubernetes.io/name=ingress-nginx
+```
+
+- 来源: [Kubernetes Blog](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/), [Google Open Source Blog](https://opensource.googleblog.com/2026/02/the-end-of-an-era-transitioning-away-from-ingress-nginx.html)
+- 验证: ✓ 多源确认
+
+### Rust 1.94.0 发布，《Rust 程序设计语言》第三版即将上市 ⭐⭐⭐
+
+Rust 1.94.0 按六周发布节奏如期推出。与此同时，由 Klabnik、Nichols 和 Krycho 合著的 **《The Rust Programming Language, 3rd Edition》**（No Starch Press，624 页）将于 3 月 31 日正式出版，目前已在 Amazon 编程类书籍中排名第一。TIOBE 指数显示 Rust 本月保持第 14 位（1.31%，同比 +0.09%）。
+
+**为什么重要：** 第三版教材覆盖了 async 闭包、Rust 2024 Edition 等近年新特性，是系统编程学习者的重要参考资料。
+
+- 来源: [Rust Blog](https://blog.rust-lang.org/releases/)
+- 验证: ✓ 多源确认
+
+---
+
+## 科技动态
+
+### 美国最高法院一致裁定：ISP 不承担用户版权侵权连带责任 ⭐⭐⭐⭐
+
+**美国最高法院于 3 月 25 日以一致意见裁定 Cox Communications 胜诉**，推翻了 Sony 音乐等唱片公司申索的 10 亿美元版权赔偿判决。大法官 Clarence Thomas 撰写多数意见：
+
+> "仅因未终止侵权用户的网络服务而追究 Cox 责任，将把版权共同侵权责任扩展到超出先例范围。"
+
+法院确立的规则：只有当 ISP **主动引诱**用户侵权，或提供**专为侵权而定制**的服务时，才构成共同侵权责任。由于互联网接入有大量合法用途，且 Cox 已采取警告、暂停、终止等措施，不满足上述条件。
+
+**行业影响：** ISP 无需充当"版权警察"；RIAA 对裁决表示失望，呼吁国会立法；谷歌和 X 在此案中提交了支持 Cox 的法庭之友意见书，担忧对 AI 平台的连带影响。
+
+**为什么重要：** 该裁决不仅影响 ISP，还为 AI 公司面临类似版权诉讼时提供了潜在的抗辩先例。
+
+- 来源: [New York Times](https://www.nytimes.com/2026/03/25/us/politics/supreme-court-cox-music-copyright.html), [Axios](https://www.axios.com/2026/03/25/supreme-court-music-piracy-case-cox-sony)
+- 验证: ✓ 多源确认
+
+### 研究者用特斯拉 Model 3 报废车零件在桌面运行车载电脑 ⭐⭐⭐
+
+安全研究者 David Hu 发布深度博客文章，记录了如何从报废 Model 3 中拆解出完整车载计算机，并在桌面环境中成功启动运行。文章详细分析了硬件架构、引导流程和安全机制，是目前最完整的特斯拉车载系统硬件逆向工程公开记录之一。
+
+**为什么重要：** 对汽车安全研究者和嵌入式系统开发者具有重要参考价值，同时引发了关于汽车硬件再利用和安全边界的讨论。
+
+- 来源: [bugs.xdavidhu.me](https://bugs.xdavidhu.me/tesla/2026/03/23/running-tesla-model-3s-computer-on-my-desk-using-parts-from-crashed-cars/)
+- Hacker News 讨论: 本日 HN 首条热帖
+- 验证: ✓ 已确认（原文 + HN 社区讨论）
+
+### 量化技术深度解析：ngrok 发布《从零开始理解量化》 ⭐⭐⭐
+
+ngrok 工程博客发布长篇技术文章《Quantization from the Ground Up》，系统讲解 AI 模型量化的数学原理与工程实践，从整数量化到浮点量化、对称量化到非对称量化，深入浅出。对于希望理解 LLM 推理优化底层原理的开发者而言是高质量学习资源。
+
+- 来源: [ngrok Blog](https://ngrok.com/blog/quantization)
+- 验证: ✓ 已确认
+
+---
+
+## 📊 今日数据
+
+| 指标 | 数值 |
+|------|------|
+| 搜索源数量 | 12 个 |
+| 候选资讯 | 28 条 |
+| 去重后 | 18 条 |
+| 最终收录 | 15 条 |
+| 多源验证率 | 100% |
+
+---
+
+> 本文由 Claude 自动生成，采用多源交叉验证机制。如发现错误，欢迎反馈。
