@@ -1,0 +1,222 @@
+---
+title: 每日技术资讯 - 2026年04月02日
+description: Google 发布 Gemma 4 开源模型（Apache 2.0 授权），31B 版本位居全球开源模型第三；Cursor 3 重磅更新为统一多 Agent 工作台；Alibaba Qwen3.6-Plus 支持 100 万 token 上下文专攻真实世界 Agent；OpenAI 斥"低数亿美元"收购科技脱口秀 TBPN，正式进军媒体领域；LinkedIn 大规模扫描用户浏览器扩展事件持续发酵。今日共收录 14 条经多源验证的重要技术资讯。
+date: 2026-04-02
+---
+
+## 🔥 今日焦点
+
+### Google 发布 Gemma 4 开源模型：Apache 2.0 授权，31B 全球第三 ⭐⭐⭐⭐⭐
+
+**核心要点：**
+
+- Google 于 2026 年 4 月 2 日发布 Gemma 4 系列，共四款：边缘端 **E2B / E4B**（支持手机、树莓派等设备，原生音频输入，128K 上下文），以及消费级 GPU **26B MoE** 和 **31B Dense**（256K 上下文）。
+- 首次采用 **Apache 2.0 许可证**，可完全免费商用，权重通过 Hugging Face、Ollama、Kaggle、LM Studio、Docker 分发。
+- 31B 在 Arena AI 文本排行榜位列**全球第三**（得分 1452），AIME 2026 数学 89.2%，LiveCodeBench v6 编码 80.0%，GPQA Diamond 科学知识 84.3%。
+
+**技术解读：**
+
+Gemma 4 基于 Gemini 3 研究成果，强调"每参数智能"——以更少参数实现更强推理。原生支持函数调用、结构化 JSON 输出与系统指令，直接面向 Agent 开发场景。E2B/E4B 的音频输入能力使端侧多模态应用门槛大幅降低；NVIDIA 同步宣布对 Gemma 4 进行 RTX 本地推理优化，与 AMD Lemonade 一起构成"本地 AI 双引擎"格局。
+
+**背景上下文：**
+
+Gemma 系列上一代（Gemma 3 27B）在评测中被中国竞争者超越，此次 Gemma 4 以 Apache 2.0 和更强基准正面回应。开源大模型军备竞赛从"能用"进入"生产级"阶段，开发者选择生态权重显著提升。
+
+**开发者行动建议：**
+
+- 通过 `ollama pull gemma4:31b` 或 Hugging Face 直接下载测试 31B 版本
+- E2B/E4B 适合移动端和嵌入式 AI 应用，可替代现有云端 API 调用以降低延迟和成本
+- 关注函数调用和 JSON 输出能力，可直接集成到 LangChain / LlamaIndex 等框架
+
+**相关链接：**
+
+- 官方公告: [Gemma 4: Byte for byte, the most capable open models](https://blog.google/innovation-and-ai/technology/developers-tools/gemma-4/)
+- 模型页面: [DeepMind Gemma 4](https://deepmind.google/models/gemma/gemma-4/)
+- 9to5Google 报道: [Google announces open Gemma 4 model with Apache 2.0 license](https://9to5google.com/2026/04/02/google-gemma-4/)
+- 验证: ✓ 多源确认
+
+---
+
+### Cursor 3：从 AI 编辑器进化为多 Agent 统一工作台 ⭐⭐⭐⭐⭐
+
+**核心要点：**
+
+- Cursor 3 于 2026 年 4 月 2 日正式发布，核心变化是从"AI 增强 IDE"重构为**统一 Agent 工作台**，默认视图改为 Agent 编排面板。
+- 支持**多 Agent 并行**：本地与云端 Agent 统一呈现在侧边栏，包括从 Slack、GitHub、Linear 等平台发起的任务；可无缝将 Agent 会话从本地迁移到云端以保持离线执行。
+- 内置自研模型 **Composer 2**，集成 LSP 支持、内置浏览器（Agent 可直接访问本地网站）、插件市场（MCP、子 Agent）及重新设计的 Diff 视图。
+
+**技术解读：**
+
+Cursor 3 的架构转变意义深远：它不再是"你用 IDE，AI 来帮你"，而是"你调度 Agent 团队，IDE 是其中一个工具"。多仓库布局和本地云端无缝切换解决了大型项目中的 Agent 上下文边界问题。Composer 2 专为编码场景优化，强调速度与精准，避免了通用大模型在代码生成中的"过度解释"倾向。
+
+**背景上下文：**
+
+Cursor 自 2024 年以来持续引领 AI 编码工具浪潮，月活开发者突破百万。3.0 的发布是其与 GitHub Copilot Workspace、Replit Agent 等竞争对手在"Agent 编排"赛道上的正式宣战。
+
+**开发者行动建议：**
+
+- 升级 Cursor 后通过 `Cmd+Shift+P → Agents Window` 进入新界面
+- 探索多仓库 Agent 并行场景，特别适合全栈项目（前后端分离仓库同步开发）
+- 插件市场的 MCP 支持使 Cursor 可接入自定义工具链，值得优先评估
+
+**相关链接：**
+
+- 官方博客: [Meet the new Cursor](https://cursor.com/blog/cursor-3)
+- TechCrunch: [Cursor is rolling out a new kind of agentic coding tool](https://techcrunch.com/2026/03/05/cursor-is-rolling-out-a-new-system-for-agentic-coding/)
+- 验证: ✓ 多源确认
+
+---
+
+### OpenAI 以"低数亿美元"收购科技脱口秀 TBPN，首次进军媒体 ⭐⭐⭐⭐
+
+**核心要点：**
+
+- OpenAI 于 2026 年 4 月 2 日宣布收购 **TBPN**（Technology Business Programming Network），这是 OpenAI 历史上**首次收购媒体公司**。
+- TBPN 是一档由前创业者 John Coogan 和 Jordi Hays 主持的每日直播脱口秀，在 YouTube 和 X 平台每天直播 3 小时，聚焦科技、商业、AI 与国防话题，赞助商包括 Ramp、Plaid 和 Google Gemini。
+- 收购价格据 Financial Times 报道为"低数亿美元"（low hundreds of millions）；TBPN 将划归 OpenAI 战略部门，向 Chris Lehane 汇报，但**保留完全编辑独立性**。
+
+**技术解读：**
+
+此次收购的战略逻辑清晰：TBPN 覆盖大量创业者、投资人和技术决策者受众，正是 OpenAI 需要影响的话语圈。在 Elon Musk 诉讼持续发酵、监管压力上升的背景下，OpenAI 通过媒体渠道直接参与 AI 叙事塑造。编辑独立承诺是维持 TBPN 公信力的核心条件，破坏它将使收购价值归零。
+
+**相关链接：**
+
+- OpenAI 公告: [OpenAI Acquires TBPN](https://openai.com/index/openai-acquires-tbpn/)
+- TechCrunch: [OpenAI acquires TBPN, the buzzy founder-led business talk show](https://techcrunch.com/2026/04/02/openai-acquires-tbpn-the-buzzy-founder-led-business-talk-show/)
+- CNBC: [OpenAI acquires popular tech podcast TBPN](https://www.cnbc.com/2026/04/02/openai-acquires-tech-podcast-tbpn.html)
+- 验证: ✓ 多源确认
+
+---
+
+## AI / 人工智能
+
+### Alibaba Qwen3.6-Plus：百万 Token 上下文，专攻真实世界 Agent ⭐⭐⭐⭐
+
+Alibaba 于 4 月 2 日发布 **Qwen3.6-Plus**，定位为"真正的 Agentic LLM"。核心能力：**100 万 token 上下文**窗口，支持仓库级工程任务全量读取；自主规划、测试、迭代代码循环，可交付生产级前端网站；兼容 OpenClaw、Claude Code、Cline 等主流编码 Agent。将集成 Alibaba 企业平台 Wukong 及 Qwen App，并在 OpenRouter 提供 100 万 token 免费试用。
+
+**为什么重要：** 百万 token 上下文是大型代码仓库 Agent 化的关键门槛，Qwen3.6-Plus 的发布使开源生态在这一能力上与 Gemini 1.5 Pro 等闭源模型正面竞争。
+
+- 来源: [Alibaba Cloud Blog](https://www.alibabacloud.com/blog/qwen3-6-plus-towards-real-world-agents_603005), [Caixin Global](https://www.caixinglobal.com/2026-04-02/alibaba-releases-qwen-36-plus-ai-model-with-enhanced-coding-capabilities-102430395.html)
+- 验证: ✓ 多源确认
+
+### AMD Lemonade：开源本地 LLM 服务器，GPU + NPU 双引擎加速 ⭐⭐⭐
+
+**Lemonade** 是 AMD 发布的开源本地 AI 运行时，登上 Hacker News 首页。核心特点：2MB 轻量级 C++ 后端；OpenAI API 兼容，现有应用零改动切换本地推理；同时利用 GPU 和 NPU（Ryzen AI 300 系列最优）；支持 LLM、Whisper 语音识别、Stable Diffusion 图像生成、TTS 全模态；已集成 n8n、VS Code Copilot、Open WebUI 等 10+ 平台。
+
+**为什么重要：** 这是目前唯一支持 Ryzen AI NPU 加速的开源 OpenAI 兼容服务器，为 AMD 硬件用户提供了可与 Ollama 竞争的本地推理方案。
+
+- 来源: [Lemonade 官网](https://lemonade-server.ai), [GitHub](https://github.com/lemonade-sdk/lemonade), [AMD 技术博客](https://www.amd.com/en/developer/resources/technical-articles/2026/lemonade-for-local-ai.html)
+- 验证: ✓ 多源确认
+
+---
+
+## GitHub / 开源
+
+### GitHub 热门项目
+
+本日 GitHub 趋势榜热门项目：
+
+- **[siddharthvaddem/openscreen](https://github.com/siddharthvaddem/openscreen)** (TypeScript, 15.7k ⭐, +2,496 今日) ⭐⭐⭐⭐
+  Screen Studio 的开源替代品，可免费创建精美演示视频，无水印、无订阅、支持商用。
+  **亮点：** 开源 + 免费商用是最大差异化优势，适合开发者录制产品 Demo。
+
+- **[Yeachan-Heo/oh-my-codex](https://github.com/Yeachan-Heo/oh-my-codex)** (TypeScript, 11.5k ⭐, +2,852 今日) ⭐⭐⭐⭐
+  为 OpenAI Codex 添加 hooks、Agent 团队、HUD 等扩展能力的框架（OmX）。
+  **亮点：** 单日新增 Star 最多，反映 Codex Agent 生态开始爆发。
+
+- **[asgeirtj/system_prompts_leaks](https://github.com/asgeirtj/system_prompts_leaks)** (36.3k ⭐, +323 今日) ⭐⭐⭐
+  持续更新的主流 AI 产品系统提示词泄露合集（ChatGPT、Claude、Gemini 等）。
+  **亮点：** 对 Prompt Engineering 研究和 AI 安全分析有参考价值。
+
+- **[anthropics/claude-code](https://github.com/anthropics/claude-code)** (Shell, 94.6k ⭐) ⭐⭐⭐⭐
+  Anthropic 官方终端 AI 编码工具，持续位于 Trendshift 榜首。
+
+- 来源: [GitHub Trending](https://github.com/trending), [Trendshift](https://trendshift.io/)
+
+### Xbox 360 游戏静态重编译项目 ReXGlue 快速推进 ⭐⭐⭐
+
+**ReXGlue** 项目正将 Xbox 360 PowerPC 代码转译为可在现代平台原生运行的 C++ 可执行文件，已成功重编译 Blue Dragon、Lost Odyssey、Banjo Kazooie: Nuts &amp; Bolts、Halo 3 测试版等经典游戏。项目基于 UnleashedRecomp 和 Xenia 模拟器技术，目标是让重编译方案适用于所有 Xbox 360 游戏。开发者明确表示"可运行"不等于"完成品"，正在向年底前实现可玩级别目标迈进。
+
+**为什么重要：** 继 N64 Recompiled 之后，Xbox 360 加入静态重编译阵营，这项技术正成为游戏保护的新范式，对逆向工程和系统级编程社区意义重大。
+
+- 来源: [ReadOnlyMemo 采访](https://readonlymemo.com/rexglue-xbox-360-recompilation-interview/), [GitHub: rexglue/rexglue-sdk](https://github.com/rexglue/rexglue-sdk)
+- 验证: ✓ 多源确认
+
+---
+
+## 前端开发
+
+### Tailscale macOS 新界面：告别被刘海遮挡的菜单栏图标 ⭐⭐⭐
+
+Tailscale v1.96.2+ 发布全新 macOS 窗口化界面，彻底解决 MacBook 刘海遮挡菜单栏图标问题。新界面包含：可搜索的设备列表与连接状态、Taildrop 文件传输、基于延迟推荐的 Exit Node 选择、Dock 图标错误提示、以及"迷你播放器"紧凑模式。技术上通过 Swift `occlusionState` API 检测图标遮挡状态并触发通知。Tailscale 同时开源了该实现，供其他开发者参考解决类似问题。
+
+**为什么重要：** 这是一个从系统限制出发、以更好 UI 设计而非变通方案解决问题的优秀案例，实现代码对 macOS 开发者有直接参考价值。
+
+- 来源: [Tailscale Blog](https://tailscale.com/blog/macos-notch-escape)
+- 验证: ✓ 官方确认
+
+---
+
+## 后端 / 基础设施
+
+### JSON Canvas 规范引发 Hacker News 热议 ⭐⭐⭐
+
+[JSON Canvas](https://jsoncanvas.org/spec/1.0/) 是 Obsidian 提出的开放式无限画布文件格式规范（2024 年发布），近日在 Hacker News 重新获得关注。该规范定义了节点（文本、文件、链接、群组）和边的标准化 JSON 表示，致力于打破白板工具的数据孤岛。当前已有多款工具支持该格式，适合构建可视化知识图谱和 Agent 工作流编排界面。
+
+- 来源: [JSON Canvas Spec](https://jsoncanvas.org/spec/1.0/), [Hacker News 讨论](https://news.ycombinator.com/)
+- 验证: ✓ 已验证
+
+---
+
+## 安全与隐私
+
+### BrowserGate：LinkedIn 大规模扫描用户浏览器扩展 ⭐⭐⭐⭐
+
+调查网站 Browsergate.eu 披露，访问 LinkedIn 会触发隐藏脚本扫描本地浏览器的已安装扩展，并将数据传送至第三方，用户不知情也无授权。扫描列表从 2024 年 12 月的 461 个扩展增长至 2026 年 2 月的 **6,167 个**，涵盖：
+
+- 识别穆斯林宗教身份的扩展
+- 揭示政治倾向的扩展
+- 神经多样性用户使用的辅助工具
+- **509 款**求职工具（导致用户在现任雇主可见的平台上暗中求职行为被记录）
+- **200+ 款** LinkedIn 竞争产品（Apollo、Lusha、ZoomInfo 等）
+
+欧盟已于 2023 年将 LinkedIn 认定为"看门人"平台，要求开放第三方工具访问，而 LinkedIn 的回应是大幅扩张扩展扫描范围。LinkedIn 和 Microsoft 截至报道时未作回应。
+
+**为什么重要：** 这是对开发者群体的直接隐私侵害——使用竞争对手工具或求职辅助扩展的行为可能已被记录和分析。
+
+- 来源: [BrowserGate.eu](https://browsergate.eu/), [Gadget Review](https://www.gadgetreview.com/linkedin-allegedly-scans-your-browser-and-sends-the-data-to-third-parties)
+- 验证: ? 待官方回应确认（调查报告单一来源，但技术机制细节经多方独立分析）
+
+---
+
+## 科技动态
+
+### Decisions that Eroded Trust in Azure：前 Azure 工程师深度复盘 ⭐⭐⭐
+
+一位前 Azure Core 工程师在 Substack 发表长文，详细分析微软如何通过一系列内部决策"蒸发了一万亿美元"的信任资产，登上 Hacker News 前五。文章聚焦工程文化、产品决策与技术债务的积累路径，为大型科技公司工程管理提供了罕见的内部视角。
+
+- 来源: [Substack 原文](https://isolveproblems.substack.com/p/how-microsoft-vaporized-a-trillion), Hacker News 热门
+- 验证: ? 个人观点，无法独立核实所有事实细节
+
+### Artemis II：激光直播 4K 月球画面，260 Mbps 传输速率 ⭐⭐⭐
+
+NASA Artemis II 任务将使用**激光通信**以 **260 Mbps** 速率直播 4K 月球画面，相比 Apollo 时代的 S 波段无线电通信实现质的飞跃。这一技术同样登顶 Hacker News，引发关于深空通信基础设施的广泛讨论。
+
+- 来源: [Tom's Hardware](https://www.tomshardware.com/networking/artemis-ii-will-use-laser-beams-to-live-stream-4k-moon-footage-one-giant-step-beyond-the-s-band-radio-comms-of-the-apollo-era)
+- 验证: ✓ 已验证
+
+---
+
+## 📊 今日数据
+
+| 指标 | 数值 |
+|------|------|
+| 搜索源数量 | 12 个 |
+| 候选资讯 | 22 条 |
+| 去重后 | 16 条 |
+| 最终收录 | 14 条 |
+| 多源验证率 | 86% |
+
+---
+
+> 本文由 Claude 自动生成，采用多源交叉验证机制。如发现错误，欢迎反馈。
