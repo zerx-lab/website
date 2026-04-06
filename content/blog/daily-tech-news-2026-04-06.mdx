@@ -1,6 +1,6 @@
 ---
 title: 每日技术资讯 - 2026年04月06日
-description: Anthropic 修复 Claude Code 高危安全漏洞（CVE-2026-33068，v2.1.90），攻击者可用 51 条子命令绕过拦截规则窃取 SSH 密钥；Qwen3 系列六款开源基础模型同日发布；Shannon 自主 AI 渗透测试工具 XBOW 基准命中率达 96.15%；claw-code 成史上最快突破 10 万 Star 的 GitHub 仓库。今日共收录 13 条经多源验证的重要技术资讯。
+description: Anthropic 修复 Claude Code 高危安全漏洞（CVE-2026-33068，v2.1.90）；Cursor 3 全面重写为 Agent 优先工作台；Qwen3 系列六款开源基础模型发布；TypeScript 6.0 确立为最后 JS 版，tsgo 7.0 进度 99.6%；Kubernetes v1.36 定于 4 月 22 日发布含 HPA 缩容到零 GA；Vue 3.6.0-beta 完成 Vapor Mode 全功能覆盖。今日共收录 17 条经多源验证的重要技术资讯。
 date: 2026-04-06
 ---
 
@@ -161,6 +161,73 @@ BitTorrent 创始人 Bram Cohen 发文 **"The cult of vibe coding is dogfooding 
 
 ---
 
+## 前端开发
+
+### Cursor 3 正式发布：从代码编辑器到 Agent 优先工作台的架构级重构 ⭐⭐⭐⭐⭐
+
+Anysphere 于 **2026 年 4 月 2 日**正式发布 **Cursor 3**，这是对产品底层架构的全面重写，定位从"AI 增强的代码编辑器"升级为"统一的 AI Agent 工作台"。
+
+核心新功能：
+
+- **Agents Window**：在统一侧边栏中同时管理多个本地与云端 Agent，支持从 Web、移动端、Slack、GitHub、Linear 发起任务。
+- **Cloud-to-Local 无缝切换**：将 Cloud Agent 会话迁移到本地调试，或将本地会话推送到云端在离线状态下持续运行。新的 **Composer 2** 编码模型提供更大使用配额。
+- **Design Mode**：直接在浏览器内标注 UI 元素并向 Agent 指向目标区域，加速 UI 迭代反馈循环。
+- **Cursor Marketplace**：整合插件、MCP（Model Context Protocol）、技能和子 Agent，构建可组合的 Agent 生态。
+
+**为什么重要：** Cursor 3 标志着 AI 编码工具从"单 Agent 辅助"转向"多 Agent 并行协作"，Cloud Agent 与 Local Agent 的无缝切换解决了大规模重构、测试套件生成等长任务的持续性问题。
+
+- 来源: [Meet the new Cursor](https://cursor.com/blog/cursor-3)
+- 来源: [Gizmodo 报道](https://gizmodo.com/cursors-new-tool-lets-users-delegate-to-a-team-of-coding-agents-2000741761)
+- 验证: ✓ 多源确认
+
+### Vue 3.6.0-beta：Vapor Mode 完成全功能覆盖，VDOM 正式成可选项 ⭐⭐⭐⭐
+
+Vue 官方宣布 **v3.6.0-beta.1** 发布，核心里程碑是 **Vapor Mode 与 Virtual DOM 模式实现全功能对等**（Feature Parity），Suspense 支持仍在开发中。Vapor Mode 通过编译器优化直接生成 DOM 操作代码，绕过 Virtual DOM diff 开销，对动态组件密集场景可带来 **2–4 倍渲染性能提升**，100ms 内可挂载 10 万个组件。组件级 Opt-in 设计允许渐进式迁移，无需全量重写。Vue 3.6 正式版目标 **2026 年中至年底**。
+
+**为什么重要：** Vapor Mode 是 Vue 生态数年来最重大的性能架构变更，将 Vue 的渲染效率提升至 Solid.js 同级水准，同时保持与现有代码库的完全兼容。
+
+- 来源: [Vue on X: v3.6.0-beta.1 发布公告](https://x.com/vuejs/status/2003469481163784611)
+- 来源: [Vue 3.6 Vapor Mode 技术详解](https://jeffbruchado.com.br/en/blog/vue-36-vapor-mode-performance-revolution-2026)
+- 验证: ✓ 多源确认
+
+---
+
+## 编程语言
+
+### TypeScript 6.0 确立为最终 JS 版，tsgo（TS 7.0 Go 编译器）进度达 99.6% ⭐⭐⭐⭐⭐
+
+- **TypeScript 6.0**（2026 年 3 月 23 日发布）是最后一个用 JavaScript/TypeScript 编写的主版本。核心变更：严格模式默认启用、ES 模块解析作为新默认、废弃 ES3/ES5 目标输出、import assertions 移除（改用 import attributes）。现有项目在升级后将触发新的废弃警告，需在 TS 7.0 正式落地前完成迁移。
+- **TypeScript 7.0（Project Corsa）** 是用 **Go 语言完全重写**的原生编译器（内部称 `tsgo`），不改变 TypeScript 语言本身类型系统，带来 **5–10 倍**编译速度提升和约 **8 倍**编辑器启动时间缩短。当前进度：20,000 个编译器测试用例中通过率达 **99.6%**（仅 74 个失败），Visual Studio 2026 Insiders 已内置 tsgo 语言服务预览。目标发布窗口 **2026 年中至年底**。
+- TS 7.0 计划移除：AMD/UMD/SystemJS 模块格式、classic Node 模块解析、非 AMD 场景的 `--outFile`。
+
+**为什么重要：** 10x 编译性能对大型 monorepo 是革命性提升，原本数十秒的 CI 类型检查将缩短到秒级。TypeScript 6.0 的新废弃警告是现在就需要处理的迁移信号。
+
+- 来源: [Visual Studio Magazine: TypeScript 6.0 Ships as Final JavaScript-Based Release](https://visualstudiomagazine.com/articles/2026/03/23/typescript-6-0-ships-as-final-javascript-based-release-clears-path-for-go-native-7-0.aspx)
+- 来源: [InfoQ: Microsoft Share Update on TypeScript 7](https://www.infoq.com/news/2026/01/typescript-7-progress/)
+- 验证: ✓ 多源确认
+
+---
+
+## 云原生 / 基础设施
+
+### Kubernetes v1.36 抢先看：HPA 缩容到零 GA、Ingress NGINX 退役、SA Token 镜像拉取 ⭐⭐⭐⭐
+
+Kubernetes **v1.36.0** 计划于 **2026 年 4 月 22 日**正式发布，关键特性：
+
+- **HPA Scale-to-Zero（GA）**：Horizontal Pod Autoscaler 终于支持将工作负载副本数缩减到 **0**，Serverless 工作负载的 K8s 原生支持向前迈进关键一步，无需再强依赖 KEDA 等外部组件。
+- **Ephemeral SA Token 用于镜像拉取**：kubelet 使用短期、自动轮换的 Service Account Token（作用域限定到单个 Pod）替代静态镜像仓库凭证，大幅提升供应链安全性。
+- **In-Place Pod 资源扩缩（Pod 级别）**：无需重建 Pod 即可调整 Stateful 应用资源规格，减少运维中断。
+- **Ingress NGINX 正式退役**：上游 Kubernetes 项目弃用 Ingress NGINX 控制器，用户需迁移到 Gateway API（HTTPRoute）。
+- **DRA 管理资源指标 Stable**：GPU/FPGA 等动态资源分配的 per-Pod 指标进入生产就绪状态。
+
+**为什么重要：** Scale-to-Zero HPA 是当前事件驱动微服务架构的核心缺口补全；Ingress NGINX 退役意味着大量存量集群需要制定 Gateway API 迁移计划。
+
+- 来源: [Kubernetes v1.36 Sneak Peek](https://kubernetes.io/blog/2026/03/30/kubernetes-v1-36-sneak-peek/)
+- 来源: [Cloudsmith K8s 1.36 解析](https://cloudsmith.com/blog/kubernetes-1-36-what-you-need-to-know)
+- 验证: ✓ 多源确认
+
+---
+
 ## 工具与产品
 
 ### Ghost Pepper：macOS 本地语音转文字，按住即录、自动粘贴 ⭐⭐⭐
@@ -216,11 +283,11 @@ OpenAI 最新财务预测显示，计划到 **2028 年**在计算基础设施上
 
 | 指标 | 数值 |
 |------|------|
-| 搜索源数量 | 21 个 |
-| 候选资讯 | 34 条 |
-| 去重后 | 17 条 |
-| 最终收录 | 13 条 |
-| 多源验证率 | 77% |
+| 搜索源数量 | 26 个 |
+| 候选资讯 | 42 条 |
+| 去重后 | 21 条 |
+| 最终收录 | 17 条 |
+| 多源验证率 | 82% |
 
 ---
 
